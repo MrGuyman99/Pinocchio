@@ -14,6 +14,7 @@ This entire project started because I was thinking of fun ways to program Tetris
 ## Some well-deserved thank-yous
 - **The rboy emulator ([Found Here](https://github.com/mvdnes/rboy/blob/main/src/register.rs)) which I used quite often as reference**
 - **This set of articles, which has helped get over the hurdle of initially starting the project ([Found Here](https://rylev.github.io/DMG-01/public/book/introduction.html))**
+- **And of course, the legendary PanDocs ([Found Here](https://gbdev.io/pandocs/About.html))**
 
 #### More to come :)
 
