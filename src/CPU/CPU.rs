@@ -1,5 +1,13 @@
 use super::registers;
 
+macro_rules! add_reg {
+    ($reg_name:ident, $self:expr) => {
+        let value = $self.registers.$reg_name;
+        let new_value = $self.add(value);
+        $self.registers.a = new_value;
+    };
+}
+
 enum ArithmeticTarget {
     A,
     B,
@@ -33,16 +41,31 @@ impl CPU {
     fn execute(&mut self, instruction: Instruction) {
         match instruction {
             Instruction::ADD(target) => match target {
-                ArithmeticTarget::C => {
-                    let value = self.registers.c;
-                    let new_value = self.add(value);
-                    self.registers.a = new_value;
+                ArithmeticTarget::A => {
+                    add_reg!(a, self);
                 }
-                _ => {
-                    // TODO: Support more targets
-                    todo!();
+                ArithmeticTarget::B => {
+                    add_reg!(b, self);
+                }
+                ArithmeticTarget::C => {
+                    add_reg!(c, self);
+                }
+                ArithmeticTarget::D => {
+                    add_reg!(d, self);
+                }
+                ArithmeticTarget::E => {
+                    add_reg!(e, self);
+                }
+                ArithmeticTarget::H => {
+                    add_reg!(h, self);
+                }
+                ArithmeticTarget::L => {
+                    add_reg!(l, self);
                 }
             },
+            _ => {
+                todo!()
+            }
         }
     }
 }
