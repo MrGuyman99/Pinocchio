@@ -1,31 +1,37 @@
-/*
-a is our accumlator register
-bc, de, and hl are 16 bit registers made of two 8 bit registers
-f is our flag register
-Basis for this code can be found here -> https://rylev.github.io/DMG-01/public/book/cpu/registers.html#cpu-registers
+/**
+ * a is our accumlator register
+ * bc, de, and hl are 16 bit registers made of two 8 bit registers
+ * f is our flag register
+ * Basis for this code can be found here -> https://rylev.github.io/DMG-01/public/book/cpu/registers.html#cpu-registers
 */
 
+/**
+ * Zero -> Set to true if the result of the operation is equal to 0
+ * Subtract -> Set to true if the operation was subtraction
+ * Carry -> Set to true if the operation resulted in overflow
+ * Half carry -> Set to true if there's an overflow from the lower four bits to the upper four bits
+*/
 const ZERO_POSITION: u8 = 7;
 const SUBTRACTION_POSITION: u8 = 6;
 const HALF_CARRY_POSITION: u8 = 5;
 const CARRY_POSITION: u8 = 4;
 
 pub struct Registers {
-    a: u8,
-    b: u8,
-    c: u8,
-    d: u8,
-    e: u8,
-    f: u8,
-    h: u8,
-    l: u8,
+    pub a: u8,
+    pub b: u8,
+    pub c: u8,
+    pub d: u8,
+    pub e: u8,
+    pub f: FlagsRegister,
+    pub h: u8,
+    pub l: u8,
 }
 
-struct FlagsRegister {
-    zero: bool,
-    subtract: bool,
-    half_carry: bool,
-    carry: bool,
+pub struct FlagsRegister {
+    pub zero: bool,
+    pub subtract: bool,
+    pub half_carry: bool,
+    pub carry: bool,
 }
 
 impl Registers {
@@ -86,7 +92,7 @@ impl std::convert::From<u8> for FlagsRegister {
 
 #[cfg(test)]
 mod test {
-    use crate::CPU::registers::Registers;
+    use super::*;
 
     #[test]
     fn wide_registers() {
@@ -96,7 +102,12 @@ mod test {
             c: 0x45,
             d: 0x56,
             e: 0x67,
-            f: 0x33,
+            f: FlagsRegister {
+                zero: false,
+                subtract: false,
+                half_carry: false,
+                carry: false,
+            },
             h: 0x78,
             l: 0x89,
         };
