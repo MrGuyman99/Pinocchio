@@ -1,9 +1,9 @@
 use super::registers;
 
-macro_rules! add_reg {
-    ($reg_name:ident, $self:expr) => {
+macro_rules! add_or_sub_reg {
+    ($reg_name:ident, $self:expr, $method:ident) => {
         let value = $self.registers.$reg_name;
-        let new_value = $self.add(value);
+        let new_value = $self.$method(value);
         $self.registers.a = new_value;
     };
 }
@@ -53,30 +53,49 @@ impl CPU {
         match instruction {
             Instruction::ADD(target) => match target {
                 ArithmeticTarget::A => {
-                    add_reg!(a, self);
+                    add_or_sub_reg!(a, self, add);
                 }
                 ArithmeticTarget::B => {
-                    add_reg!(b, self);
+                    add_or_sub_reg!(b, self, add);
                 }
                 ArithmeticTarget::C => {
-                    add_reg!(c, self);
+                    add_or_sub_reg!(c, self, add);
                 }
                 ArithmeticTarget::D => {
-                    add_reg!(d, self);
+                    add_or_sub_reg!(d, self, add);
                 }
                 ArithmeticTarget::E => {
-                    add_reg!(e, self);
+                    add_or_sub_reg!(e, self, add);
                 }
                 ArithmeticTarget::H => {
-                    add_reg!(h, self);
+                    add_or_sub_reg!(h, self, add);
                 }
                 ArithmeticTarget::L => {
-                    add_reg!(l, self);
+                    add_or_sub_reg!(l, self, add);
                 }
             },
             Instruction::SUB(target) => match target {
-                ArithmeticTarget::A => {}
-                _ => {}
+                ArithmeticTarget::A => {
+                    add_or_sub_reg!(a, self, subtract);
+                }
+                ArithmeticTarget::B => {
+                    add_or_sub_reg!(b, self, subtract);
+                }
+                ArithmeticTarget::C => {
+                    add_or_sub_reg!(c, self, subtract);
+                }
+                ArithmeticTarget::D => {
+                    add_or_sub_reg!(d, self, subtract);
+                }
+                ArithmeticTarget::E => {
+                    add_or_sub_reg!(e, self, subtract);
+                }
+                ArithmeticTarget::H => {
+                    add_or_sub_reg!(h, self, subtract);
+                }
+                ArithmeticTarget::L => {
+                    add_or_sub_reg!(l, self, subtract);
+                }
             },
             _ => {
                 todo!()
