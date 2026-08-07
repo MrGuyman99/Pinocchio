@@ -8,7 +8,7 @@ macro_rules! add_or_sub_reg {
     };
 }
 
-enum ArithmeticTarget {
+pub enum ArithmeticTarget {
     A,
     B,
     C,
@@ -18,7 +18,7 @@ enum ArithmeticTarget {
     L,
 }
 
-enum Instruction {
+pub enum Instruction {
     ADD(ArithmeticTarget),
     SUB(ArithmeticTarget),
     INC(ArithmeticTarget),
@@ -26,10 +26,31 @@ enum Instruction {
 }
 
 pub struct CPU {
-    registers: registers::Registers,
+    pub registers: registers::Registers,
 }
 
 impl CPU {
+    // Note: Placeholder just for testing
+    pub fn new() -> Self {
+        CPU {
+            registers: registers::Registers {
+                a: 0,
+                b: 0,
+                c: 0,
+                d: 0,
+                e: 0,
+                f: registers::FlagsRegister {
+                    zero: false,
+                    subtract: false,
+                    half_carry: false,
+                    carry: false,
+                },
+                h: 0,
+                l: 0,
+            },
+        }
+    }
+
     fn add(&mut self, value: u8) -> u8 {
         let (new_value, did_overflow) = self.registers.a.overflowing_add(value);
         self.registers.f.zero = new_value == 0;
@@ -45,7 +66,7 @@ impl CPU {
         let new_value = value.wrapping_add(1);
         self.registers.f.zero = value == 0;
         self.registers.f.subtract = false;
-        self.registers.f.half_carry = (value & 0xF) == 0x0;
+        self.registers.f.half_carry = (value & 0xF) == 0xF;
         new_value
     }
 
@@ -53,7 +74,7 @@ impl CPU {
         let new_value = value.wrapping_sub(1);
         self.registers.f.zero = new_value == 0;
         self.registers.f.subtract = true;
-        self.registers.f.half_carry = (value & 0xF) == 0xF;
+        self.registers.f.half_carry = (value & 0xF) == 0x0;
         new_value
     }
 
@@ -67,7 +88,7 @@ impl CPU {
         new_value
     }
 
-    fn execute(&mut self, instruction: Instruction) {
+    pub fn execute(&mut self, instruction: Instruction) {
         match instruction {
             Instruction::ADD(target) => match target {
                 ArithmeticTarget::A => {
@@ -161,9 +182,53 @@ impl CPU {
                     self.registers.l = self.decrement(self.registers.l);
                 }
             },
-            _ => {
-                todo!()
-            }
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_INC_and_DEC() {
+        let mut cpu = CPU::new();
+        cpu.execute(Instruction::INC(ArithmeticTarget::C));
+        assert_eq!(0x1, cpu.registers.c);
+        cpu.execute(Instruction::DEC(ArithmeticTarget::C));
+        assert_eq!(0x0, cpu.registers.c);
+    }
+
+    #[test]
+    fn test_half_carry_on_INC() {
+        let mut cpu = CPU::new();
+        cpu.registers.c = 0xF;
+        cpu.execute(Instruction::INC(ArithmeticTarget::C));
+        assert_eq!(true, cpu.registers.f.half_carry);
+    }
+
+    #[test]
+    fn test_half_carry_on_DEC() {
+        let mut cpu = CPU::new();
+        cpu.registers.c = 0x10;
+        cpu.execute(Instruction::DEC(ArithmeticTarget::C));
+        assert_eq!(true, cpu.registers.f.half_carry);
+    }
+
+    #[test]
+    fn test_ADD() {
+        let mut cpu = CPU::new();
+        cpu.execute(Instruction::INC(ArithmeticTarget::C));
+        cpu.execute(Instruction::ADD(ArithmeticTarget::C));
+        assert_eq!(0x1, cpu.registers.a);
+    }
+
+    #[test]
+    fn test_SUB() {
+        let mut cpu = CPU::new();
+        cpu.execute(Instruction::INC(ArithmeticTarget::C));
+        cpu.execute(Instruction::ADD(ArithmeticTarget::C));
+        cpu.execute(Instruction::SUB(ArithmeticTarget::C));
+        assert_eq!(0x0, cpu.registers.a);
     }
 }
