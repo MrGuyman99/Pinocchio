@@ -21,9 +21,11 @@ enum ArithmeticTarget {
 enum Instruction {
     ADD(ArithmeticTarget),
     SUB(ArithmeticTarget),
+    INC(ArithmeticTarget),
+    DEC(ArithmeticTarget),
 }
 
-struct CPU {
+pub struct CPU {
     registers: registers::Registers,
 }
 
@@ -36,6 +38,22 @@ impl CPU {
         // If the lower nibble of the value and register a together result in a bigger value than 0xF
         // Then the addition caused a carry from the lower nibble to the upper nibble
         self.registers.f.half_carry = (self.registers.a & 0xF) + (value & 0xF) > 0xF;
+        new_value
+    }
+
+    fn increment(&mut self, value: u8) -> u8 {
+        let new_value = value.wrapping_add(1);
+        self.registers.f.zero = value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.half_carry = (value & 0xF) == 0x0;
+        new_value
+    }
+
+    fn decrement(&mut self, value: u8) -> u8 {
+        let new_value = value.wrapping_sub(1);
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = true;
+        self.registers.f.half_carry = (value & 0xF) == 0xF;
         new_value
     }
 
@@ -95,6 +113,52 @@ impl CPU {
                 }
                 ArithmeticTarget::L => {
                     add_or_sub_reg!(l, self, subtract);
+                }
+            },
+            Instruction::INC(target) => match target {
+                ArithmeticTarget::A => {
+                    self.registers.a = self.increment(self.registers.a);
+                }
+                ArithmeticTarget::B => {
+                    self.registers.b = self.increment(self.registers.b);
+                }
+                ArithmeticTarget::C => {
+                    self.registers.c = self.increment(self.registers.c);
+                }
+                ArithmeticTarget::D => {
+                    self.registers.d = self.increment(self.registers.d);
+                }
+                ArithmeticTarget::E => {
+                    self.registers.e = self.increment(self.registers.e);
+                }
+                ArithmeticTarget::H => {
+                    self.registers.h = self.increment(self.registers.h);
+                }
+                ArithmeticTarget::L => {
+                    self.registers.l = self.increment(self.registers.l);
+                }
+            },
+            Instruction::DEC(target) => match target {
+                ArithmeticTarget::A => {
+                    self.registers.a = self.decrement(self.registers.a);
+                }
+                ArithmeticTarget::B => {
+                    self.registers.b = self.decrement(self.registers.b);
+                }
+                ArithmeticTarget::C => {
+                    self.registers.c = self.decrement(self.registers.c);
+                }
+                ArithmeticTarget::D => {
+                    self.registers.d = self.decrement(self.registers.d);
+                }
+                ArithmeticTarget::E => {
+                    self.registers.e = self.decrement(self.registers.e);
+                }
+                ArithmeticTarget::H => {
+                    self.registers.h = self.decrement(self.registers.h);
+                }
+                ArithmeticTarget::L => {
+                    self.registers.l = self.decrement(self.registers.l);
                 }
             },
             _ => {
