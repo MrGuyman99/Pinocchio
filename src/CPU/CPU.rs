@@ -20,6 +20,7 @@ enum ArithmeticTarget {
 
 enum Instruction {
     ADD(ArithmeticTarget),
+    SUB(ArithmeticTarget),
 }
 
 struct CPU {
@@ -35,6 +36,16 @@ impl CPU {
         // If the lower nibble of the value and register a together result in a bigger value than 0xF
         // Then the addition caused a carry from the lower nibble to the upper nibble
         self.registers.f.half_carry = (self.registers.a & 0xF) + (value & 0xF) > 0xF;
+        new_value
+    }
+
+    fn subtract(&mut self, value: u8) -> u8 {
+        let (new_value, did_borrow) = self.registers.a.overflowing_sub(value);
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = true;
+        self.registers.f.carry = did_borrow;
+        self.registers.f.half_carry = (self.registers.a & 0xF) < (value & 0xF);
+        self.registers.a = new_value;
         new_value
     }
 
@@ -62,6 +73,10 @@ impl CPU {
                 ArithmeticTarget::L => {
                     add_reg!(l, self);
                 }
+            },
+            Instruction::SUB(target) => match target {
+                ArithmeticTarget::A => {}
+                _ => {}
             },
             _ => {
                 todo!()
