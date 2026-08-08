@@ -23,6 +23,7 @@ pub enum Instruction {
     SUB(ArithmeticTarget),
     INC(ArithmeticTarget),
     DEC(ArithmeticTarget),
+    ADC(ArithmeticTarget),
 }
 
 pub struct CPU {
@@ -62,6 +63,28 @@ impl CPU {
         new_value
     }
 
+    fn add_carry(&mut self, value: u8) -> u8 {
+        let (new_value, did_overflow) = self
+            .registers
+            .a
+            .overflowing_add(value + u8::from(self.registers.f.carry));
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.carry = did_overflow;
+        self.registers.f.half_carry = (self.registers.a & 0xF) + (value & 0xF) > 0xF;
+        new_value
+    }
+
+    fn subtract(&mut self, value: u8) -> u8 {
+        let (new_value, did_borrow) = self.registers.a.overflowing_sub(value);
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = true;
+        self.registers.f.carry = did_borrow;
+        self.registers.f.half_carry = (self.registers.a & 0xF) < (value & 0xF);
+        self.registers.a = new_value;
+        new_value
+    }
+
     fn increment(&mut self, value: u8) -> u8 {
         let new_value = value.wrapping_add(1);
         self.registers.f.zero = value == 0;
@@ -75,16 +98,6 @@ impl CPU {
         self.registers.f.zero = new_value == 0;
         self.registers.f.subtract = true;
         self.registers.f.half_carry = (value & 0xF) == 0x0;
-        new_value
-    }
-
-    fn subtract(&mut self, value: u8) -> u8 {
-        let (new_value, did_borrow) = self.registers.a.overflowing_sub(value);
-        self.registers.f.zero = new_value == 0;
-        self.registers.f.subtract = true;
-        self.registers.f.carry = did_borrow;
-        self.registers.f.half_carry = (self.registers.a & 0xF) < (value & 0xF);
-        self.registers.a = new_value;
         new_value
     }
 
@@ -182,6 +195,9 @@ impl CPU {
                     self.registers.l = self.decrement(self.registers.l);
                 }
             },
+            _ => {
+                todo!();
+            }
         }
     }
 }
