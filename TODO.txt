@@ -1,0 +1,32 @@
+Register Instructions:
+    - ADDHL
+    - AND
+    - OR
+    - XOR
+    - CP <- Unfortunate Acronym
+    - CCF
+    - SCF
+    - RRA
+    - RLA
+    - RRCA
+    - RRLA
+    - CPL
+    - BIT
+    - RESET
+    - SET
+    - SRL
+    - RR
+    - RL
+    - RRC
+    - RLC
+    - SRA
+    - SLA
+    - SWAP
+
+Finished Instructions:
+    - ADC
+    - SBC
+    - INC
+    - DEC
+    - ADD
+    - SUB
