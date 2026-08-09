@@ -24,6 +24,7 @@ pub enum Instruction {
     INC(ArithmeticTarget),
     DEC(ArithmeticTarget),
     ADC(ArithmeticTarget),
+    SBC(ArithmeticTarget),
 }
 
 pub struct CPU {
@@ -64,10 +65,8 @@ impl CPU {
     }
 
     fn add_carry(&mut self, value: u8) -> u8 {
-        let (new_value, did_overflow) = self
-            .registers
-            .a
-            .overflowing_add(value + u8::from(self.registers.f.carry));
+        let (add_value, _did_overflow) = value.overflowing_add(u8::from(self.registers.f.carry));
+        let (new_value, did_overflow) = self.registers.a.overflowing_add(add_value);
         self.registers.f.zero = new_value == 0;
         self.registers.f.subtract = false;
         self.registers.f.carry = did_overflow;
@@ -82,6 +81,18 @@ impl CPU {
         self.registers.f.carry = did_borrow;
         self.registers.f.half_carry = (self.registers.a & 0xF) < (value & 0xF);
         self.registers.a = new_value;
+        new_value
+    }
+
+    fn subtract_carry(&mut self, value: u8) -> u8 {
+        let (subtract_value, _did_overflow) =
+            value.overflowing_add(u8::from(self.registers.f.carry));
+        let (new_value, did_borrow) = self.registers.a.overflowing_sub(subtract_value);
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = true;
+        self.registers.f.carry = did_borrow;
+        self.registers.f.half_carry =
+            ((self.registers.a + u8::from(self.registers.f.carry)) & 0xF) < (value & 0xF);
         new_value
     }
 
@@ -149,6 +160,7 @@ impl CPU {
                     add_or_sub_reg!(l, self, subtract);
                 }
             },
+            // INC and DEC alter the registers themselves and don't touch a, so they don't use the add_or_sub_reg macro
             Instruction::INC(target) => match target {
                 ArithmeticTarget::A => {
                     self.registers.a = self.increment(self.registers.a);
@@ -197,27 +209,48 @@ impl CPU {
             },
             Instruction::ADC(target) => match target {
                 ArithmeticTarget::A => {
-                    self.registers.a = self.add_carry(self.registers.a);
+                    add_or_sub_reg!(a, self, add_carry);
                 }
                 ArithmeticTarget::B => {
-                    self.registers.b = self.add_carry(self.registers.b);
+                    add_or_sub_reg!(b, self, add_carry);
                 }
                 ArithmeticTarget::C => {
-                    let value = self.registers.c;
-                    let new_value = self.add_carry(value);
-                    self.registers.a = new_value;
+                    add_or_sub_reg!(c, self, add_carry);
                 }
                 ArithmeticTarget::D => {
-                    self.registers.d = self.add_carry(self.registers.d);
+                    add_or_sub_reg!(d, self, add_carry);
                 }
                 ArithmeticTarget::E => {
-                    self.registers.e = self.add_carry(self.registers.e);
+                    add_or_sub_reg!(e, self, add_carry);
                 }
                 ArithmeticTarget::H => {
-                    self.registers.h = self.add_carry(self.registers.h);
+                    add_or_sub_reg!(h, self, add_carry);
                 }
                 ArithmeticTarget::L => {
-                    self.registers.l = self.add_carry(self.registers.l);
+                    add_or_sub_reg!(l, self, add_carry);
+                }
+            },
+            Instruction::SBC(target) => match target {
+                ArithmeticTarget::A => {
+                    add_or_sub_reg!(a, self, subtract_carry);
+                }
+                ArithmeticTarget::B => {
+                    add_or_sub_reg!(b, self, subtract_carry);
+                }
+                ArithmeticTarget::C => {
+                    add_or_sub_reg!(c, self, subtract_carry);
+                }
+                ArithmeticTarget::D => {
+                    add_or_sub_reg!(d, self, subtract_carry);
+                }
+                ArithmeticTarget::E => {
+                    add_or_sub_reg!(e, self, subtract_carry);
+                }
+                ArithmeticTarget::H => {
+                    add_or_sub_reg!(h, self, subtract_carry);
+                }
+                ArithmeticTarget::L => {
+                    add_or_sub_reg!(l, self, subtract_carry);
                 }
             },
         }
@@ -262,6 +295,14 @@ mod test {
     }
 
     #[test]
+    fn test_SBC() {
+        let mut cpu = CPU::new();
+        cpu.registers.f.carry = true;
+        cpu.execute(Instruction::SBC(ArithmeticTarget::C));
+        assert_eq!(0xFF, cpu.registers.a);
+    }
+
+    #[test]
     fn test_ADD() {
         let mut cpu = CPU::new();
         cpu.execute(Instruction::INC(ArithmeticTarget::C));
@@ -273,8 +314,7 @@ mod test {
     fn test_SUB() {
         let mut cpu = CPU::new();
         cpu.execute(Instruction::INC(ArithmeticTarget::C));
-        cpu.execute(Instruction::ADD(ArithmeticTarget::C));
         cpu.execute(Instruction::SUB(ArithmeticTarget::C));
-        assert_eq!(0x0, cpu.registers.a);
+        assert_eq!(0xFF, cpu.registers.a);
     }
 }
