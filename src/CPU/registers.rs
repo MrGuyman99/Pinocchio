@@ -63,8 +63,6 @@ impl Registers {
     }
 }
 
-// If, for example, flag.zero = true we return 1 + ZERO_POSITION to store it
-// in the right bit of our u8 flag
 impl std::convert::From<FlagsRegister> for u8 {
     fn from(flag: FlagsRegister) -> u8 {
         (if flag.zero { 1 } else { 0 }) << ZERO_POSITION

@@ -195,9 +195,31 @@ impl CPU {
                     self.registers.l = self.decrement(self.registers.l);
                 }
             },
-            _ => {
-                todo!();
-            }
+            Instruction::ADC(target) => match target {
+                ArithmeticTarget::A => {
+                    self.registers.a = self.add_carry(self.registers.a);
+                }
+                ArithmeticTarget::B => {
+                    self.registers.b = self.add_carry(self.registers.b);
+                }
+                ArithmeticTarget::C => {
+                    let value = self.registers.c;
+                    let new_value = self.add_carry(value);
+                    self.registers.a = new_value;
+                }
+                ArithmeticTarget::D => {
+                    self.registers.d = self.add_carry(self.registers.d);
+                }
+                ArithmeticTarget::E => {
+                    self.registers.e = self.add_carry(self.registers.e);
+                }
+                ArithmeticTarget::H => {
+                    self.registers.h = self.add_carry(self.registers.h);
+                }
+                ArithmeticTarget::L => {
+                    self.registers.l = self.add_carry(self.registers.l);
+                }
+            },
         }
     }
 }
@@ -229,6 +251,14 @@ mod test {
         cpu.registers.c = 0x10;
         cpu.execute(Instruction::DEC(ArithmeticTarget::C));
         assert_eq!(true, cpu.registers.f.half_carry);
+    }
+
+    #[test]
+    fn test_ADC() {
+        let mut cpu = CPU::new();
+        cpu.registers.f.carry = true;
+        cpu.execute(Instruction::ADC(ArithmeticTarget::C));
+        assert_eq!(0x1, cpu.registers.a);
     }
 
     #[test]
