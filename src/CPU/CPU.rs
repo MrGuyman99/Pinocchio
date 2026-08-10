@@ -1,5 +1,15 @@
 use super::registers;
 
+/*
+void add_one(int &ThingToAdd){
+    ThingToAdd++;
+}
+
+int test = 2;
+add_one(test);
+
+*/
+
 // For any operation working with r8's that manipulate the a register
 macro_rules! operation_on_a_match {
     ($self:ident, $method:ident, $target:ident) => {
@@ -99,6 +109,7 @@ pub enum Instruction {
     XOR(ArithmeticTarget),
     AND(ArithmeticTarget),
     SWAP(ArithmeticTarget),
+    RL(ArithmeticTarget),
     ADDHL(R16Registers),
 }
 
@@ -223,10 +234,22 @@ impl CPU {
     }
 
     fn swap(&mut self, value: u8) -> u8 {
-        let new_value = ((value & 0xF) << 4) | ((value & 0xF0) >> 4);
+        let new_value = (value << 0x4) | (value >> 0x4);
         self.registers.f.zero = new_value == 0;
         self.registers.f.subtract = false;
         self.registers.f.carry = false;
+        self.registers.f.half_carry = false;
+        new_value
+    }
+
+    fn rotate_left_carry(&mut self, value: u8) -> u8 {
+        let old_carry = u8::from(self.registers.f.carry);
+        let new_carry = (value & 0x80) != 0;
+        let new_value = (value << 1) | old_carry;
+
+        self.registers.f.carry = new_carry;
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
         self.registers.f.half_carry = false;
         new_value
     }
@@ -235,14 +258,15 @@ impl CPU {
         match instruction {
             Instruction::ADD(target) => operation_on_a_match!(self, add, target),
             Instruction::SUB(target) => operation_on_a_match!(self, subtract, target),
-            Instruction::INC(target) => operation_on_self_match!(self, increment, target),
-            Instruction::DEC(target) => operation_on_self_match!(self, decrement, target),
-            Instruction::SWAP(target) => operation_on_self_match!(self, swap, target),
+            Instruction::AND(target) => operation_on_a_match!(self, and, target),
             Instruction::ADC(target) => operation_on_a_match!(self, add_carry, target),
             Instruction::SBC(target) => operation_on_a_match!(self, subtract_carry, target),
             Instruction::OR(target) => operation_on_a_match!(self, or, target),
             Instruction::XOR(target) => operation_on_a_match!(self, xor, target),
-            Instruction::AND(target) => operation_on_a_match!(self, and, target),
+            Instruction::INC(target) => operation_on_self_match!(self, increment, target),
+            Instruction::DEC(target) => operation_on_self_match!(self, decrement, target),
+            Instruction::RL(target) => operation_on_self_match!(self, rotate_left_carry, target),
+            Instruction::SWAP(target) => operation_on_self_match!(self, swap, target),
             Instruction::ADDHL(target) => match target {
                 R16Registers::BC => {
                     let value = self.registers.get_bc();
@@ -366,5 +390,14 @@ mod test {
         cpu.execute(Instruction::INC(ArithmeticTarget::C));
         cpu.execute(Instruction::SUB(ArithmeticTarget::C));
         assert_eq!(0xFF, cpu.registers.a);
+    }
+
+    #[test]
+    fn test_RL() {
+        let mut cpu = CPU::new();
+        cpu.registers.c = 0b1010_0101;
+        cpu.execute(Instruction::RL(ArithmeticTarget::C));
+        assert_eq!(true, cpu.registers.f.carry);
+        assert_eq!(0b0100_1010, cpu.registers.c);
     }
 }
