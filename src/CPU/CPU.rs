@@ -67,6 +67,7 @@ pub enum Instruction {
     SBC(ArithmeticTarget),
     OR(ArithmeticTarget),
     XOR(ArithmeticTarget),
+    AND(ArithmeticTarget),
     ADDHL(R16Registers),
 }
 
@@ -181,6 +182,15 @@ impl CPU {
         new_value
     }
 
+    fn and(&mut self, value: u8) -> u8 {
+        let new_value = self.registers.a & value;
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.carry = false;
+        self.registers.f.half_carry = false;
+        new_value
+    }
+
     pub fn execute(&mut self, instruction: Instruction) {
         match instruction {
             Instruction::ADD(target) => operation_on_a_match!(self, add, target),
@@ -236,6 +246,7 @@ impl CPU {
             Instruction::SBC(target) => operation_on_a_match!(self, subtract_carry, target),
             Instruction::OR(target) => operation_on_a_match!(self, or, target),
             Instruction::XOR(target) => operation_on_a_match!(self, xor, target),
+            Instruction::AND(target) => operation_on_a_match!(self, and, target),
             Instruction::ADDHL(target) => match target {
                 R16Registers::BC => {
                     let value = self.registers.get_bc();
@@ -270,12 +281,22 @@ mod test {
         assert_eq!(0xFF, cpu.registers.a);
     }
 
+    #[test]
     fn test_XOR() {
         let mut cpu = CPU::new();
         cpu.registers.c = 0b0101_1011;
         cpu.registers.a = 0b1010_0101;
         cpu.execute(Instruction::XOR(ArithmeticTarget::C));
         assert_eq!(0xFE, cpu.registers.a);
+    }
+
+    #[test]
+    fn test_AND() {
+        let mut cpu = CPU::new();
+        cpu.registers.c = 0xF;
+        cpu.registers.a = 0b1111_0101;
+        cpu.execute(Instruction::AND(ArithmeticTarget::C));
+        assert_eq!(0x5, cpu.registers.a);
     }
 
     #[test]
