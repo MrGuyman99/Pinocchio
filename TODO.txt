@@ -1,24 +1,22 @@
 Register Instructions:
-    - AND
-    - CP
-    - CCF
-    - SCF
-    - RRA
-    - RLA
-    - RRCA
-    - RRLA
-    - CPL
-    - BIT
-    - RESET
-    - SET
-    - SRL
-    - RR
-    - RL
-    - RRC
-    - RLC
-    - SRA
-    - SLA
-    - SWAP
+    - CP <- Compare (Just like SUB except the result is not stored in A)
+    - CCF <- Toggles the Value of the carry flag
+    - SCF <- Carry flag is set to true
+    - RRA <- Rotates Byte Right (A) through the carry regsiter
+    - RLA <- Rotates Byte Left (A) through the carry regsiter
+    - RRCA <- Rotates the bit right not through the carry flag
+    - RRLA <- Rotates the bit left not through the carry flag
+    - CPL <- Toggle every bit of the A register
+    - BIT <- Test to see if a specific bit of a specific regsiter is set
+    - RESET <- Set a specific bit of a register to 0
+    - SET <- Set a specific bit of a specific register to 1
+    - SRL <- Bit shift a specific register right by 1
+    - RR <- Bit rotate a specific register by 1 through the carry flag (Right)
+    - RL <- Bit rotate a specific register by 1 through the carry flag (Left)
+    - RRC <- Rotate a specific register right by 1 (no carry flag)
+    - RLC <- Rotate a specific register left by 1 (no carry flag)
+    - SRA <- Arithmetic shift a specific regsiter right by 1
+    - SLA <- Arithmetic shift a specific register left by 1
 
 Finished Instructions:
     - ADC
@@ -30,3 +28,5 @@ Finished Instructions:
     - ADDHL
     - OR
     - XOR
+    - AND
+    - SWAP

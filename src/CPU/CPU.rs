@@ -1,5 +1,6 @@
 use super::registers;
 
+// For any operation working with r8's that manipulate the a register
 macro_rules! operation_on_a_match {
     ($self:ident, $method:ident, $target:ident) => {
         match $target {
@@ -42,6 +43,35 @@ macro_rules! operation_on_a_match {
     };
 }
 
+// For any operation with r8's that manipulate only themselves
+macro_rules! operation_on_self_match {
+    ($self:ident, $method:ident, $target:ident) => {
+        match $target {
+            ArithmeticTarget::A => {
+                $self.registers.a = $self.$method($self.registers.a);
+            }
+            ArithmeticTarget::B => {
+                $self.registers.b = $self.$method($self.registers.b);
+            }
+            ArithmeticTarget::C => {
+                $self.registers.c = $self.$method($self.registers.c);
+            }
+            ArithmeticTarget::D => {
+                $self.registers.d = $self.$method($self.registers.d);
+            }
+            ArithmeticTarget::E => {
+                $self.registers.e = $self.$method($self.registers.e);
+            }
+            ArithmeticTarget::H => {
+                $self.registers.h = $self.$method($self.registers.h);
+            }
+            ArithmeticTarget::L => {
+                $self.registers.l = $self.$method($self.registers.l);
+            }
+        }
+    };
+}
+
 pub enum ArithmeticTarget {
     A,
     B,
@@ -68,6 +98,7 @@ pub enum Instruction {
     OR(ArithmeticTarget),
     XOR(ArithmeticTarget),
     AND(ArithmeticTarget),
+    SWAP(ArithmeticTarget),
     ADDHL(R16Registers),
 }
 
@@ -191,57 +222,22 @@ impl CPU {
         new_value
     }
 
+    fn swap(&mut self, value: u8) -> u8 {
+        let new_value = ((value & 0xF) << 4) | ((value & 0xF0) >> 4);
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.carry = false;
+        self.registers.f.half_carry = false;
+        new_value
+    }
+
     pub fn execute(&mut self, instruction: Instruction) {
         match instruction {
             Instruction::ADD(target) => operation_on_a_match!(self, add, target),
             Instruction::SUB(target) => operation_on_a_match!(self, subtract, target),
-            // INC and DEC alter the registers themselves and don't touch a, so they don't use the operation_on_a_match macro
-            Instruction::INC(target) => match target {
-                ArithmeticTarget::A => {
-                    self.registers.a = self.increment(self.registers.a);
-                }
-                ArithmeticTarget::B => {
-                    self.registers.b = self.increment(self.registers.b);
-                }
-                ArithmeticTarget::C => {
-                    self.registers.c = self.increment(self.registers.c);
-                }
-                ArithmeticTarget::D => {
-                    self.registers.d = self.increment(self.registers.d);
-                }
-                ArithmeticTarget::E => {
-                    self.registers.e = self.increment(self.registers.e);
-                }
-                ArithmeticTarget::H => {
-                    self.registers.h = self.increment(self.registers.h);
-                }
-                ArithmeticTarget::L => {
-                    self.registers.l = self.increment(self.registers.l);
-                }
-            },
-            Instruction::DEC(target) => match target {
-                ArithmeticTarget::A => {
-                    self.registers.a = self.decrement(self.registers.a);
-                }
-                ArithmeticTarget::B => {
-                    self.registers.b = self.decrement(self.registers.b);
-                }
-                ArithmeticTarget::C => {
-                    self.registers.c = self.decrement(self.registers.c);
-                }
-                ArithmeticTarget::D => {
-                    self.registers.d = self.decrement(self.registers.d);
-                }
-                ArithmeticTarget::E => {
-                    self.registers.e = self.decrement(self.registers.e);
-                }
-                ArithmeticTarget::H => {
-                    self.registers.h = self.decrement(self.registers.h);
-                }
-                ArithmeticTarget::L => {
-                    self.registers.l = self.decrement(self.registers.l);
-                }
-            },
+            Instruction::INC(target) => operation_on_self_match!(self, increment, target),
+            Instruction::DEC(target) => operation_on_self_match!(self, decrement, target),
+            Instruction::SWAP(target) => operation_on_self_match!(self, swap, target),
             Instruction::ADC(target) => operation_on_a_match!(self, add_carry, target),
             Instruction::SBC(target) => operation_on_a_match!(self, subtract_carry, target),
             Instruction::OR(target) => operation_on_a_match!(self, or, target),
@@ -297,6 +293,14 @@ mod test {
         cpu.registers.a = 0b1111_0101;
         cpu.execute(Instruction::AND(ArithmeticTarget::C));
         assert_eq!(0x5, cpu.registers.a);
+    }
+
+    #[test]
+    fn test_SWAP() {
+        let mut cpu = CPU::new();
+        cpu.registers.c = 0xF;
+        cpu.execute(Instruction::SWAP(ArithmeticTarget::C));
+        assert_eq!(0xF0, cpu.registers.c);
     }
 
     #[test]
