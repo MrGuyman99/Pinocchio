@@ -3,7 +3,7 @@ Register Instructions:
     - AND
     - OR
     - XOR
-    - CP <- Unfortunate Acronym
+    - CP
     - CCF
     - SCF
     - RRA

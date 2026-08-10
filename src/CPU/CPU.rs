@@ -18,6 +18,12 @@ pub enum ArithmeticTarget {
     L,
 }
 
+pub enum R16Registers {
+    BC,
+    DE,
+    HL,
+}
+
 pub enum Instruction {
     ADD(ArithmeticTarget),
     SUB(ArithmeticTarget),
@@ -25,6 +31,7 @@ pub enum Instruction {
     DEC(ArithmeticTarget),
     ADC(ArithmeticTarget),
     SBC(ArithmeticTarget),
+    ADDHL(R16Registers),
 }
 
 pub struct CPU {
@@ -71,6 +78,14 @@ impl CPU {
         self.registers.f.subtract = false;
         self.registers.f.carry = did_overflow;
         self.registers.f.half_carry = (self.registers.a & 0xF) + (value & 0xF) > 0xF;
+        new_value
+    }
+
+    fn add_hl(&mut self, value: u16) -> u16 {
+        let (new_value, did_overflow) = self.registers.get_hl().overflowing_add(value);
+        self.registers.f.subtract = false;
+        self.registers.f.carry = did_overflow;
+        self.registers.f.half_carry = (value & 0xFFF) + (value & 0xFFF) > 0xFFF;
         new_value
     }
 
@@ -253,6 +268,23 @@ impl CPU {
                     add_or_sub_reg!(l, self, subtract_carry);
                 }
             },
+            Instruction::ADDHL(target) => match target {
+                R16Registers::BC => {
+                    let value = self.registers.get_bc();
+                    let new_value = self.add_hl(value);
+                    self.registers.set_hl(new_value);
+                }
+                R16Registers::DE => {
+                    let value = self.registers.get_de();
+                    let new_value = self.add_hl(value);
+                    self.registers.set_de(new_value);
+                }
+                R16Registers::HL => {
+                    let value = self.registers.get_hl();
+                    let new_value = self.add_hl(value);
+                    self.registers.set_hl(new_value);
+                }
+            },
         }
     }
 }
@@ -308,6 +340,14 @@ mod test {
         cpu.execute(Instruction::INC(ArithmeticTarget::C));
         cpu.execute(Instruction::ADD(ArithmeticTarget::C));
         assert_eq!(0x1, cpu.registers.a);
+    }
+
+    #[test]
+    fn test_ADDHL() {
+        let mut cpu = CPU::new();
+        cpu.registers.set_bc(0x10);
+        cpu.execute(Instruction::ADDHL(R16Registers::BC));
+        assert_eq!(0x10, cpu.registers.get_hl());
     }
 
     #[test]
