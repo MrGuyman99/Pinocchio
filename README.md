@@ -1,7 +1,7 @@
 # Pinocchio: Gameboy Emulator
 **Get it? He wants to be real boy ;)**
 
-### Current State: On the first commit (lol)
+### Current State: Working on Register Instructions (1/3 done)
 
 Pinnochio is a Gameboy emulator written in Rust. This whole project is a big excuse to learn Rust and also have that one big project that solidifies your coding knowledge. Hopefully that project is this for me.
 
