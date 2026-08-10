@@ -1,5 +1,4 @@
 Register Instructions:
-    - ADDHL
     - AND
     - OR
     - XOR
@@ -30,3 +29,4 @@ Finished Instructions:
     - DEC
     - ADD
     - SUB
+    - ADDHL

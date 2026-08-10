@@ -1,6 +1,6 @@
 use super::registers;
 
-macro_rules! add_or_sub_reg {
+macro_rules! operation_on_a {
     ($reg_name:ident, $self:expr, $method:ident) => {
         let value = $self.registers.$reg_name;
         let new_value = $self.$method(value);
@@ -31,6 +31,7 @@ pub enum Instruction {
     DEC(ArithmeticTarget),
     ADC(ArithmeticTarget),
     SBC(ArithmeticTarget),
+    OR(ArithmeticTarget),
     ADDHL(R16Registers),
 }
 
@@ -127,55 +128,64 @@ impl CPU {
         new_value
     }
 
+    fn or(&mut self, value: u8) -> u8 {
+        let new_value = self.registers.a | value;
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.carry = false;
+        self.registers.f.half_carry = false;
+        new_value
+    }
+
     pub fn execute(&mut self, instruction: Instruction) {
         match instruction {
             Instruction::ADD(target) => match target {
                 ArithmeticTarget::A => {
-                    add_or_sub_reg!(a, self, add);
+                    operation_on_a!(a, self, add);
                 }
                 ArithmeticTarget::B => {
-                    add_or_sub_reg!(b, self, add);
+                    operation_on_a!(b, self, add);
                 }
                 ArithmeticTarget::C => {
-                    add_or_sub_reg!(c, self, add);
+                    operation_on_a!(c, self, add);
                 }
                 ArithmeticTarget::D => {
-                    add_or_sub_reg!(d, self, add);
+                    operation_on_a!(d, self, add);
                 }
                 ArithmeticTarget::E => {
-                    add_or_sub_reg!(e, self, add);
+                    operation_on_a!(e, self, add);
                 }
                 ArithmeticTarget::H => {
-                    add_or_sub_reg!(h, self, add);
+                    operation_on_a!(h, self, add);
                 }
                 ArithmeticTarget::L => {
-                    add_or_sub_reg!(l, self, add);
+                    operation_on_a!(l, self, add);
                 }
             },
             Instruction::SUB(target) => match target {
                 ArithmeticTarget::A => {
-                    add_or_sub_reg!(a, self, subtract);
+                    operation_on_a!(a, self, subtract);
                 }
                 ArithmeticTarget::B => {
-                    add_or_sub_reg!(b, self, subtract);
+                    operation_on_a!(b, self, subtract);
                 }
                 ArithmeticTarget::C => {
-                    add_or_sub_reg!(c, self, subtract);
+                    operation_on_a!(c, self, subtract);
                 }
                 ArithmeticTarget::D => {
-                    add_or_sub_reg!(d, self, subtract);
+                    operation_on_a!(d, self, subtract);
                 }
                 ArithmeticTarget::E => {
-                    add_or_sub_reg!(e, self, subtract);
+                    operation_on_a!(e, self, subtract);
                 }
                 ArithmeticTarget::H => {
-                    add_or_sub_reg!(h, self, subtract);
+                    operation_on_a!(h, self, subtract);
                 }
                 ArithmeticTarget::L => {
-                    add_or_sub_reg!(l, self, subtract);
+                    operation_on_a!(l, self, subtract);
                 }
             },
-            // INC and DEC alter the registers themselves and don't touch a, so they don't use the add_or_sub_reg macro
+            // INC and DEC alter the registers themselves and don't touch a, so they don't use the operation_on_a macro
             Instruction::INC(target) => match target {
                 ArithmeticTarget::A => {
                     self.registers.a = self.increment(self.registers.a);
@@ -224,48 +234,71 @@ impl CPU {
             },
             Instruction::ADC(target) => match target {
                 ArithmeticTarget::A => {
-                    add_or_sub_reg!(a, self, add_carry);
+                    operation_on_a!(a, self, add_carry);
                 }
                 ArithmeticTarget::B => {
-                    add_or_sub_reg!(b, self, add_carry);
+                    operation_on_a!(b, self, add_carry);
                 }
                 ArithmeticTarget::C => {
-                    add_or_sub_reg!(c, self, add_carry);
+                    operation_on_a!(c, self, add_carry);
                 }
                 ArithmeticTarget::D => {
-                    add_or_sub_reg!(d, self, add_carry);
+                    operation_on_a!(d, self, add_carry);
                 }
                 ArithmeticTarget::E => {
-                    add_or_sub_reg!(e, self, add_carry);
+                    operation_on_a!(e, self, add_carry);
                 }
                 ArithmeticTarget::H => {
-                    add_or_sub_reg!(h, self, add_carry);
+                    operation_on_a!(h, self, add_carry);
                 }
                 ArithmeticTarget::L => {
-                    add_or_sub_reg!(l, self, add_carry);
+                    operation_on_a!(l, self, add_carry);
                 }
             },
             Instruction::SBC(target) => match target {
                 ArithmeticTarget::A => {
-                    add_or_sub_reg!(a, self, subtract_carry);
+                    operation_on_a!(a, self, subtract_carry);
                 }
                 ArithmeticTarget::B => {
-                    add_or_sub_reg!(b, self, subtract_carry);
+                    operation_on_a!(b, self, subtract_carry);
                 }
                 ArithmeticTarget::C => {
-                    add_or_sub_reg!(c, self, subtract_carry);
+                    operation_on_a!(c, self, subtract_carry);
                 }
                 ArithmeticTarget::D => {
-                    add_or_sub_reg!(d, self, subtract_carry);
+                    operation_on_a!(d, self, subtract_carry);
                 }
                 ArithmeticTarget::E => {
-                    add_or_sub_reg!(e, self, subtract_carry);
+                    operation_on_a!(e, self, subtract_carry);
                 }
                 ArithmeticTarget::H => {
-                    add_or_sub_reg!(h, self, subtract_carry);
+                    operation_on_a!(h, self, subtract_carry);
                 }
                 ArithmeticTarget::L => {
-                    add_or_sub_reg!(l, self, subtract_carry);
+                    operation_on_a!(l, self, subtract_carry);
+                }
+            },
+            Instruction::OR(target) => match target {
+                ArithmeticTarget::A => {
+                    operation_on_a!(a, self, or);
+                }
+                ArithmeticTarget::B => {
+                    operation_on_a!(b, self, or);
+                }
+                ArithmeticTarget::C => {
+                    operation_on_a!(c, self, or);
+                }
+                ArithmeticTarget::D => {
+                    operation_on_a!(d, self, or);
+                }
+                ArithmeticTarget::E => {
+                    operation_on_a!(e, self, or);
+                }
+                ArithmeticTarget::H => {
+                    operation_on_a!(h, self, or);
+                }
+                ArithmeticTarget::L => {
+                    operation_on_a!(l, self, or);
                 }
             },
             Instruction::ADDHL(target) => match target {
@@ -292,6 +325,16 @@ impl CPU {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_OR() {
+        let mut cpu = CPU::new();
+        cpu.registers.c = 0b0101_1010;
+        cpu.registers.a = 0b1010_0101;
+        cpu.execute(Instruction::OR(ArithmeticTarget::C));
+        println!("{:08b}", cpu.registers.a);
+        assert_eq!(0xFF, cpu.registers.a);
+    }
 
     #[test]
     fn test_INC_and_DEC() {
