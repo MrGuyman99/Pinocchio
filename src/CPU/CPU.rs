@@ -1,10 +1,44 @@
 use super::registers;
 
-macro_rules! operation_on_a {
-    ($reg_name:ident, $self:expr, $method:ident) => {
-        let value = $self.registers.$reg_name;
-        let new_value = $self.$method(value);
-        $self.registers.a = new_value;
+macro_rules! operation_on_a_match {
+    ($self:ident, $method:ident, $target:ident) => {
+        match $target {
+            ArithmeticTarget::A => {
+                let value = $self.registers.a;
+                let new_value = $self.$method(value);
+                $self.registers.a = new_value;
+            }
+            ArithmeticTarget::B => {
+                let value = $self.registers.b;
+                let new_value = $self.$method(value);
+                $self.registers.a = new_value;
+            }
+            ArithmeticTarget::C => {
+                let value = $self.registers.c;
+                let new_value = $self.$method(value);
+                $self.registers.a = new_value;
+            }
+            ArithmeticTarget::D => {
+                let value = $self.registers.d;
+                let new_value = $self.$method(value);
+                $self.registers.a = new_value;
+            }
+            ArithmeticTarget::E => {
+                let value = $self.registers.e;
+                let new_value = $self.$method(value);
+                $self.registers.a = new_value;
+            }
+            ArithmeticTarget::H => {
+                let value = $self.registers.h;
+                let new_value = $self.$method(value);
+                $self.registers.a = new_value;
+            }
+            ArithmeticTarget::L => {
+                let value = $self.registers.l;
+                let new_value = $self.$method(value);
+                $self.registers.a = new_value;
+            }
+        }
     };
 }
 
@@ -139,53 +173,9 @@ impl CPU {
 
     pub fn execute(&mut self, instruction: Instruction) {
         match instruction {
-            Instruction::ADD(target) => match target {
-                ArithmeticTarget::A => {
-                    operation_on_a!(a, self, add);
-                }
-                ArithmeticTarget::B => {
-                    operation_on_a!(b, self, add);
-                }
-                ArithmeticTarget::C => {
-                    operation_on_a!(c, self, add);
-                }
-                ArithmeticTarget::D => {
-                    operation_on_a!(d, self, add);
-                }
-                ArithmeticTarget::E => {
-                    operation_on_a!(e, self, add);
-                }
-                ArithmeticTarget::H => {
-                    operation_on_a!(h, self, add);
-                }
-                ArithmeticTarget::L => {
-                    operation_on_a!(l, self, add);
-                }
-            },
-            Instruction::SUB(target) => match target {
-                ArithmeticTarget::A => {
-                    operation_on_a!(a, self, subtract);
-                }
-                ArithmeticTarget::B => {
-                    operation_on_a!(b, self, subtract);
-                }
-                ArithmeticTarget::C => {
-                    operation_on_a!(c, self, subtract);
-                }
-                ArithmeticTarget::D => {
-                    operation_on_a!(d, self, subtract);
-                }
-                ArithmeticTarget::E => {
-                    operation_on_a!(e, self, subtract);
-                }
-                ArithmeticTarget::H => {
-                    operation_on_a!(h, self, subtract);
-                }
-                ArithmeticTarget::L => {
-                    operation_on_a!(l, self, subtract);
-                }
-            },
-            // INC and DEC alter the registers themselves and don't touch a, so they don't use the operation_on_a macro
+            Instruction::ADD(target) => operation_on_a_match!(self, add, target),
+            Instruction::SUB(target) => operation_on_a_match!(self, subtract, target),
+            // INC and DEC alter the registers themselves and don't touch a, so they don't use the operation_on_a_match macro
             Instruction::INC(target) => match target {
                 ArithmeticTarget::A => {
                     self.registers.a = self.increment(self.registers.a);
@@ -232,75 +222,9 @@ impl CPU {
                     self.registers.l = self.decrement(self.registers.l);
                 }
             },
-            Instruction::ADC(target) => match target {
-                ArithmeticTarget::A => {
-                    operation_on_a!(a, self, add_carry);
-                }
-                ArithmeticTarget::B => {
-                    operation_on_a!(b, self, add_carry);
-                }
-                ArithmeticTarget::C => {
-                    operation_on_a!(c, self, add_carry);
-                }
-                ArithmeticTarget::D => {
-                    operation_on_a!(d, self, add_carry);
-                }
-                ArithmeticTarget::E => {
-                    operation_on_a!(e, self, add_carry);
-                }
-                ArithmeticTarget::H => {
-                    operation_on_a!(h, self, add_carry);
-                }
-                ArithmeticTarget::L => {
-                    operation_on_a!(l, self, add_carry);
-                }
-            },
-            Instruction::SBC(target) => match target {
-                ArithmeticTarget::A => {
-                    operation_on_a!(a, self, subtract_carry);
-                }
-                ArithmeticTarget::B => {
-                    operation_on_a!(b, self, subtract_carry);
-                }
-                ArithmeticTarget::C => {
-                    operation_on_a!(c, self, subtract_carry);
-                }
-                ArithmeticTarget::D => {
-                    operation_on_a!(d, self, subtract_carry);
-                }
-                ArithmeticTarget::E => {
-                    operation_on_a!(e, self, subtract_carry);
-                }
-                ArithmeticTarget::H => {
-                    operation_on_a!(h, self, subtract_carry);
-                }
-                ArithmeticTarget::L => {
-                    operation_on_a!(l, self, subtract_carry);
-                }
-            },
-            Instruction::OR(target) => match target {
-                ArithmeticTarget::A => {
-                    operation_on_a!(a, self, or);
-                }
-                ArithmeticTarget::B => {
-                    operation_on_a!(b, self, or);
-                }
-                ArithmeticTarget::C => {
-                    operation_on_a!(c, self, or);
-                }
-                ArithmeticTarget::D => {
-                    operation_on_a!(d, self, or);
-                }
-                ArithmeticTarget::E => {
-                    operation_on_a!(e, self, or);
-                }
-                ArithmeticTarget::H => {
-                    operation_on_a!(h, self, or);
-                }
-                ArithmeticTarget::L => {
-                    operation_on_a!(l, self, or);
-                }
-            },
+            Instruction::ADC(target) => operation_on_a_match!(self, add_carry, target),
+            Instruction::SBC(target) => operation_on_a_match!(self, subtract_carry, target),
+            Instruction::OR(target) => operation_on_a_match!(self, or, target),
             Instruction::ADDHL(target) => match target {
                 R16Registers::BC => {
                     let value = self.registers.get_bc();
