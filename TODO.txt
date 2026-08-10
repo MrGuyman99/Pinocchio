@@ -1,6 +1,5 @@
 Register Instructions:
     - AND
-    - OR
     - XOR
     - CP
     - CCF
@@ -30,3 +29,4 @@ Finished Instructions:
     - ADD
     - SUB
     - ADDHL
+    - OR
