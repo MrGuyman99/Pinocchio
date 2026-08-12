@@ -117,6 +117,8 @@ Finished Instructions:
 - ADD HL, r16
 - INC, r8
 - DEC, r8
+- INC, r16
+- DEC, r16
 - ADD A, r8
 - AND A, r8
 - OR A, r8

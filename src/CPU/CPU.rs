@@ -92,7 +92,9 @@ pub enum Instruction {
     ADD(ArithmeticTarget),
     SUB(ArithmeticTarget),
     INC(ArithmeticTarget),
+    INC16(R16Registers),
     DEC(ArithmeticTarget),
+    DEC16(R16Registers),
     ADC(ArithmeticTarget),
     SBC(ArithmeticTarget),
     OR(ArithmeticTarget),
@@ -195,6 +197,22 @@ impl CPU {
         self.registers.f.zero = new_value == 0;
         self.registers.f.subtract = true;
         self.registers.f.half_carry = (value & 0xF) == 0x0;
+        new_value
+    }
+
+    fn increment_16(&mut self, value: u16) -> u16 {
+        let new_value = value.wrapping_add(1);
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = true;
+        self.registers.f.half_carry = (value & 0xFF) == 0xFF;
+        new_value
+    }
+
+    fn decrement_16(&mut self, value: u16) -> u16 {
+        let new_value = value.wrapping_sub(1);
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = true;
+        self.registers.f.half_carry = (value & 0xFF) == 0x0;
         new_value
     }
 
@@ -306,6 +324,34 @@ impl CPU {
                 R16Registers::HL => {
                     let value = self.registers.get_hl();
                     let new_value = self.add_hl(value);
+                    self.registers.set_hl(new_value);
+                }
+            },
+            Instruction::INC16(target) => match target {
+                R16Registers::BC => {
+                    let new_value = self.increment_16(self.registers.get_bc());
+                    self.registers.set_bc(new_value);
+                }
+                R16Registers::DE => {
+                    let new_value = self.increment_16(self.registers.get_de());
+                    self.registers.set_de(new_value);
+                }
+                R16Registers::HL => {
+                    let new_value = self.increment_16(self.registers.get_hl());
+                    self.registers.set_hl(new_value);
+                }
+            },
+            Instruction::DEC16(target) => match target {
+                R16Registers::BC => {
+                    let new_value = self.decrement_16(self.registers.get_bc());
+                    self.registers.set_bc(new_value);
+                }
+                R16Registers::DE => {
+                    let new_value = self.decrement_16(self.registers.get_de());
+                    self.registers.set_de(new_value);
+                }
+                R16Registers::HL => {
+                    let new_value = self.decrement_16(self.registers.get_hl());
                     self.registers.set_hl(new_value);
                 }
             },

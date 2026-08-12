@@ -137,4 +137,18 @@ mod test {
         assert_eq!(true, cpu.registers.f.carry);
         assert_eq!(0b0100_1001, cpu.registers.c);
     }
+
+    #[test]
+    fn test_INC16() {
+        let mut cpu = CPU::test();
+        cpu.execute(Instruction::INC16(R16Registers::BC));
+        assert_eq!(0x1, cpu.registers.get_bc());
+    }
+
+    #[test]
+    fn test_DEC16() {
+        let mut cpu = CPU::test();
+        cpu.execute(Instruction::DEC16(R16Registers::BC));
+        assert_eq!(0xFFFF, cpu.registers.get_bc());
+    }
 }
