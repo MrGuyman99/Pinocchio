@@ -101,6 +101,8 @@ pub enum Instruction {
     SWAP(ArithmeticTarget),
     RL(ArithmeticTarget),
     RR(ArithmeticTarget),
+    RLC(ArithmeticTarget),
+    RRC(ArithmeticTarget),
     ADDHL(R16Registers),
 }
 
@@ -256,6 +258,24 @@ impl CPU {
         new_value
     }
 
+    fn rotate_left(&mut self, value: u8) -> u8 {
+        let new_value = value.rotate_left(1);
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.half_carry = false;
+        self.registers.f.carry = (value & 0x80) != 0;
+        new_value
+    }
+
+    fn rotate_right(&mut self, value: u8) -> u8 {
+        let new_value = value.rotate_right(1);
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.half_carry = false;
+        self.registers.f.carry = (value & 0x1) != 0;
+        new_value
+    }
+
     pub fn execute(&mut self, instruction: Instruction) {
         match instruction {
             Instruction::ADD(target) => operation_on_a_match!(self, add, target),
@@ -269,6 +289,8 @@ impl CPU {
             Instruction::DEC(target) => operation_on_self_match!(self, decrement, target),
             Instruction::RL(target) => operation_on_self_match!(self, rotate_left_carry, target),
             Instruction::RR(target) => operation_on_self_match!(self, rotate_right_carry, target),
+            Instruction::RLC(target) => operation_on_self_match!(self, rotate_left, target),
+            Instruction::RRC(target) => operation_on_self_match!(self, rotate_right, target),
             Instruction::SWAP(target) => operation_on_self_match!(self, swap, target),
             Instruction::ADDHL(target) => match target {
                 R16Registers::BC => {

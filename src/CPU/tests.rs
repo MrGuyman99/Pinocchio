@@ -119,4 +119,22 @@ mod test {
         assert_eq!(false, cpu.registers.f.carry);
         assert_eq!(0b0101_0010, cpu.registers.c);
     }
+
+    #[test]
+    fn test_RRC() {
+        let mut cpu = CPU::test();
+        cpu.registers.c = 0b1010_0100;
+        cpu.execute(Instruction::RRC(ArithmeticTarget::C));
+        assert_eq!(false, cpu.registers.f.carry);
+        assert_eq!(0b0101_0010, cpu.registers.c);
+    }
+
+    #[test]
+    fn test_RLC() {
+        let mut cpu = CPU::test();
+        cpu.registers.c = 0b1010_0100;
+        cpu.execute(Instruction::RLC(ArithmeticTarget::C));
+        assert_eq!(true, cpu.registers.f.carry);
+        assert_eq!(0b0100_1001, cpu.registers.c);
+    }
 }

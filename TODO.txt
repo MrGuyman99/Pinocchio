@@ -11,7 +11,6 @@ Register Instructions:
     - RESET <- Set a specific bit of a register to 0
     - SET <- Set a specific bit of a specific register to 1
     - SRL <- Bit shift a specific register right by 1
-    - RR <- Bit rotate a specific register by 1 through the carry flag (Right)
     - RRC <- Rotate a specific register right by 1 (no carry flag)
     - RLC <- Rotate a specific register left by 1 (no carry flag)
     - SRA <- Arithmetic shift a specific regsiter right by 1
@@ -30,3 +29,4 @@ Finished Instructions:
     - AND
     - SWAP
     - RL
+    - RR
