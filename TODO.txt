@@ -1,32 +1,130 @@
-Register Instructions:
-    - CP <- Compare (Just like SUB except the result is not stored in A)
-    - CCF <- Toggles the Value of the carry flag
-    - SCF <- Carry flag is set to true
-    - RRA <- Rotates Byte Right (A) through the carry regsiter
-    - RLA <- Rotates Byte Left (A) through the carry regsiter
-    - RRCA <- Rotates the bit right not through the carry flag
-    - RRLA <- Rotates the bit left not through the carry flag
-    - CPL <- Toggle every bit of the A register
-    - BIT <- Test to see if a specific bit of a specific regsiter is set
-    - RESET <- Set a specific bit of a register to 0
-    - SET <- Set a specific bit of a specific register to 1
-    - SRL <- Bit shift a specific register right by 1
-    - RRC <- Rotate a specific register right by 1 (no carry flag)
-    - RLC <- Rotate a specific register left by 1 (no carry flag)
-    - SRA <- Arithmetic shift a specific regsiter right by 1
-    - SLA <- Arithmetic shift a specific register left by 1
+Load instructions:
+- LD r8,r8
+- LD r8,n8
+- LD r16,n16
+- LD [HL],r8
+- LD [HL],n8
+- LD r8,[HL]
+- LD [r16],A
+- LD [n16],A
+- LDH [n16],A
+- LDH [C],A
+- LD A,[r16]
+- LD A,[n16]
+- LDH A,[n16]
+- LDH A,[C]
+- LD [HLI],A
+- LD [HLD],A
+- LD A,[HLI]
+- LD A,[HLD]
+
+8-bit arithmetic instructions:
+- ADC A,[HL]
+- ADC A,n8
+- ADD A,[HL]
+- ADD A,n8
+- CP A,r8
+- CP A,[HL]
+- CP A,n8
+- DEC [HL]
+- INC [HL]
+- SBC A,[HL]
+- SBC A,n8
+- SUB A,[HL]
+- SUB A,n8
+
+16-bit arithmetic instructions:
+- DEC r16
+- INC r16
+
+Bitwise logic instructions
+- AND A,[HL]
+- AND A,n8
+- CPL
+- OR A,[HL]
+- OR A,n8
+- XOR A,[HL]
+- XOR A,n8
+
+Bit flag instructions:
+- BIT u3,r8
+- BIT u3,[HL]
+- RES u3,r8
+- RES u3,[HL]
+- SET u3,r8
+- SET u3,[HL]
+
+Bit shift instructions:
+- RL [HL]
+- RLA
+- RLC [HL]
+- RLCA
+- RR [HL]
+- RRA
+- RRC [HL]
+- RRCA
+- SLA r8
+- SLA [HL]
+- SRA r8
+- SRA [HL]
+- SRL r8
+- SRL [HL]
+- SWAP [HL]
+
+Jumps and subroutine instructions:
+- CALL n16
+- CALL cc,n16
+- JP HL
+- JP n16
+- JP cc,n16
+- JR n16
+- JR cc,n16
+- RET cc
+- RET
+- RETI
+- RST vec
+
+Carry flag instructions: 
+- CCF
+- SCF
+
+Stack manipulation instructions:
+- ADD HL,SP
+- ADD SP,e8
+- DEC SP
+- INC SP
+- LD SP,n16
+- LD [n16],SP
+- LD HL,SP+e8
+- LD SP,HL
+- POP AF
+- POP r16
+- PUSH AF
+- PUSH r16
+
+Interrupt-related instructions
+- DI
+- EI
+- HALT
+
+Miscellaneous instructions
+- DAA
+- NOP
+- STOP
 
 Finished Instructions:
-    - ADC
-    - SBC
-    - INC
-    - DEC
-    - ADD
-    - SUB
-    - ADDHL
-    - OR
-    - XOR
-    - AND
-    - SWAP
-    - RL
-    - RR
+- ADC A, r8 <- (ADC A, n8 would kinda be the same function)
+- ADD HL, r16
+- INC, r8
+- DEC, r8
+- ADD A, r8
+- AND A, r8
+- OR A, r8
+- XOR A, r8
+- RL r8
+- RLC r8
+- RR r8
+- RRC r8
+- SWAP r8
+- SUB A, r8
+- SBC A, r8

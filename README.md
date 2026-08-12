@@ -1,7 +1,7 @@
 # Pinocchio: Gameboy Emulator
 **Get it? He wants to be real boy ;)**
 
-### Current State: Working on Register Instructions (1/3 done)
+### Current State: Working on Register Instructions
 
 Pinnochio is a Gameboy emulator written in Rust. This whole project is a big excuse to learn Rust and also have that one big project that solidifies your coding knowledge. Hopefully that project is this for me.
 
@@ -14,6 +14,7 @@ This entire project started because I was thinking of fun ways to program Tetris
 ## Some well-deserved thank-yous
 - **The rboy emulator ([Found Here](https://github.com/mvdnes/rboy/blob/main/src/register.rs)) which I used quite often as reference**
 - **This set of articles, which has helped get over the hurdle of initially starting the project ([Found Here](https://rylev.github.io/DMG-01/public/book/introduction.html))**
+- **This absolutely legendary website explaing all the gameboy instructions ([Found Here](https://rgbds.gbdev.io/docs/v1.0.3/gbz80.7#RRA))**
 - **And of course, the legendary PanDocs ([Found Here](https://gbdev.io/pandocs/About.html))**
 
 #### More to come :)
