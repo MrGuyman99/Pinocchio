@@ -1,15 +1,5 @@
 use super::registers;
 
-/*
-void add_one(int &ThingToAdd){
-    ThingToAdd++;
-}
-
-int test = 2;
-add_one(test);
-
-*/
-
 // For any operation working with r8's that manipulate the a register
 macro_rules! operation_on_a_match {
     ($self:ident, $method:ident, $target:ident) => {
@@ -110,6 +100,7 @@ pub enum Instruction {
     AND(ArithmeticTarget),
     SWAP(ArithmeticTarget),
     RL(ArithmeticTarget),
+    RR(ArithmeticTarget),
     ADDHL(R16Registers),
 }
 
@@ -118,8 +109,7 @@ pub struct CPU {
 }
 
 impl CPU {
-    // Note: Placeholder just for testing
-    pub fn new() -> Self {
+    pub fn test() -> Self {
         CPU {
             registers: registers::Registers {
                 a: 0,
@@ -254,6 +244,18 @@ impl CPU {
         new_value
     }
 
+    fn rotate_right_carry(&mut self, value: u8) -> u8 {
+        let old_carry = u8::from(self.registers.f.carry) << 7;
+        let new_carry = (value & 0x1) != 0;
+        let new_value = (value >> 1) | old_carry;
+
+        self.registers.f.carry = new_carry;
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.half_carry = false;
+        new_value
+    }
+
     pub fn execute(&mut self, instruction: Instruction) {
         match instruction {
             Instruction::ADD(target) => operation_on_a_match!(self, add, target),
@@ -266,6 +268,7 @@ impl CPU {
             Instruction::INC(target) => operation_on_self_match!(self, increment, target),
             Instruction::DEC(target) => operation_on_self_match!(self, decrement, target),
             Instruction::RL(target) => operation_on_self_match!(self, rotate_left_carry, target),
+            Instruction::RR(target) => operation_on_self_match!(self, rotate_right_carry, target),
             Instruction::SWAP(target) => operation_on_self_match!(self, swap, target),
             Instruction::ADDHL(target) => match target {
                 R16Registers::BC => {
@@ -285,119 +288,5 @@ impl CPU {
                 }
             },
         }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_OR() {
-        let mut cpu = CPU::new();
-        cpu.registers.c = 0b0101_1010;
-        cpu.registers.a = 0b1010_0101;
-        cpu.execute(Instruction::OR(ArithmeticTarget::C));
-        assert_eq!(0xFF, cpu.registers.a);
-    }
-
-    #[test]
-    fn test_XOR() {
-        let mut cpu = CPU::new();
-        cpu.registers.c = 0b0101_1011;
-        cpu.registers.a = 0b1010_0101;
-        cpu.execute(Instruction::XOR(ArithmeticTarget::C));
-        assert_eq!(0xFE, cpu.registers.a);
-    }
-
-    #[test]
-    fn test_AND() {
-        let mut cpu = CPU::new();
-        cpu.registers.c = 0xF;
-        cpu.registers.a = 0b1111_0101;
-        cpu.execute(Instruction::AND(ArithmeticTarget::C));
-        assert_eq!(0x5, cpu.registers.a);
-    }
-
-    #[test]
-    fn test_SWAP() {
-        let mut cpu = CPU::new();
-        cpu.registers.c = 0xF;
-        cpu.execute(Instruction::SWAP(ArithmeticTarget::C));
-        assert_eq!(0xF0, cpu.registers.c);
-    }
-
-    #[test]
-    fn test_INC_and_DEC() {
-        let mut cpu = CPU::new();
-        cpu.execute(Instruction::INC(ArithmeticTarget::C));
-        assert_eq!(0x1, cpu.registers.c);
-        cpu.execute(Instruction::DEC(ArithmeticTarget::C));
-        assert_eq!(0x0, cpu.registers.c);
-    }
-
-    #[test]
-    fn test_half_carry_on_INC() {
-        let mut cpu = CPU::new();
-        cpu.registers.c = 0xF;
-        cpu.execute(Instruction::INC(ArithmeticTarget::C));
-        assert_eq!(true, cpu.registers.f.half_carry);
-    }
-
-    #[test]
-    fn test_half_carry_on_DEC() {
-        let mut cpu = CPU::new();
-        cpu.registers.c = 0x10;
-        cpu.execute(Instruction::DEC(ArithmeticTarget::C));
-        assert_eq!(true, cpu.registers.f.half_carry);
-    }
-
-    #[test]
-    fn test_ADC() {
-        let mut cpu = CPU::new();
-        cpu.registers.f.carry = true;
-        cpu.execute(Instruction::ADC(ArithmeticTarget::C));
-        assert_eq!(0x1, cpu.registers.a);
-    }
-
-    #[test]
-    fn test_SBC() {
-        let mut cpu = CPU::new();
-        cpu.registers.f.carry = true;
-        cpu.execute(Instruction::SBC(ArithmeticTarget::C));
-        assert_eq!(0xFF, cpu.registers.a);
-    }
-
-    #[test]
-    fn test_ADD() {
-        let mut cpu = CPU::new();
-        cpu.execute(Instruction::INC(ArithmeticTarget::C));
-        cpu.execute(Instruction::ADD(ArithmeticTarget::C));
-        assert_eq!(0x1, cpu.registers.a);
-    }
-
-    #[test]
-    fn test_ADDHL() {
-        let mut cpu = CPU::new();
-        cpu.registers.set_bc(0x10);
-        cpu.execute(Instruction::ADDHL(R16Registers::BC));
-        assert_eq!(0x10, cpu.registers.get_hl());
-    }
-
-    #[test]
-    fn test_SUB() {
-        let mut cpu = CPU::new();
-        cpu.execute(Instruction::INC(ArithmeticTarget::C));
-        cpu.execute(Instruction::SUB(ArithmeticTarget::C));
-        assert_eq!(0xFF, cpu.registers.a);
-    }
-
-    #[test]
-    fn test_RL() {
-        let mut cpu = CPU::new();
-        cpu.registers.c = 0b1010_0101;
-        cpu.execute(Instruction::RL(ArithmeticTarget::C));
-        assert_eq!(true, cpu.registers.f.carry);
-        assert_eq!(0b0100_1010, cpu.registers.c);
     }
 }
