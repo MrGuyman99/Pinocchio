@@ -1,113 +1,4 @@
 use super::registers;
-
-// For any operation working with r8's that manipulate the a register
-macro_rules! operation_on_a_match {
-    ($self:ident, $method:ident, $target:ident) => {
-        match $target {
-            ArithmeticTarget::A => {
-                let value = $self.registers.a;
-                let new_value = $self.$method(value);
-                $self.registers.a = new_value;
-            }
-            ArithmeticTarget::B => {
-                let value = $self.registers.b;
-                let new_value = $self.$method(value);
-                $self.registers.a = new_value;
-            }
-            ArithmeticTarget::C => {
-                let value = $self.registers.c;
-                let new_value = $self.$method(value);
-                $self.registers.a = new_value;
-            }
-            ArithmeticTarget::D => {
-                let value = $self.registers.d;
-                let new_value = $self.$method(value);
-                $self.registers.a = new_value;
-            }
-            ArithmeticTarget::E => {
-                let value = $self.registers.e;
-                let new_value = $self.$method(value);
-                $self.registers.a = new_value;
-            }
-            ArithmeticTarget::H => {
-                let value = $self.registers.h;
-                let new_value = $self.$method(value);
-                $self.registers.a = new_value;
-            }
-            ArithmeticTarget::L => {
-                let value = $self.registers.l;
-                let new_value = $self.$method(value);
-                $self.registers.a = new_value;
-            }
-        }
-    };
-}
-
-// For any operation with r8's that manipulate only themselves
-macro_rules! operation_on_self_match {
-    ($self:ident, $method:ident, $target:ident) => {
-        match $target {
-            ArithmeticTarget::A => {
-                $self.registers.a = $self.$method($self.registers.a);
-            }
-            ArithmeticTarget::B => {
-                $self.registers.b = $self.$method($self.registers.b);
-            }
-            ArithmeticTarget::C => {
-                $self.registers.c = $self.$method($self.registers.c);
-            }
-            ArithmeticTarget::D => {
-                $self.registers.d = $self.$method($self.registers.d);
-            }
-            ArithmeticTarget::E => {
-                $self.registers.e = $self.$method($self.registers.e);
-            }
-            ArithmeticTarget::H => {
-                $self.registers.h = $self.$method($self.registers.h);
-            }
-            ArithmeticTarget::L => {
-                $self.registers.l = $self.$method($self.registers.l);
-            }
-        }
-    };
-}
-
-pub enum ArithmeticTarget {
-    A,
-    B,
-    C,
-    D,
-    E,
-    H,
-    L,
-}
-
-pub enum R16Registers {
-    BC,
-    DE,
-    HL,
-}
-
-pub enum Instruction {
-    ADD(ArithmeticTarget),
-    SUB(ArithmeticTarget),
-    INC(ArithmeticTarget),
-    INC16(R16Registers),
-    DEC(ArithmeticTarget),
-    DEC16(R16Registers),
-    ADC(ArithmeticTarget),
-    SBC(ArithmeticTarget),
-    OR(ArithmeticTarget),
-    XOR(ArithmeticTarget),
-    AND(ArithmeticTarget),
-    SWAP(ArithmeticTarget),
-    RL(ArithmeticTarget),
-    RR(ArithmeticTarget),
-    RLC(ArithmeticTarget),
-    RRC(ArithmeticTarget),
-    ADDHL(R16Registers),
-}
-
 pub struct CPU {
     pub registers: registers::Registers,
 }
@@ -294,67 +185,128 @@ impl CPU {
         new_value
     }
 
-    pub fn execute(&mut self, instruction: Instruction) {
+    pub fn execute(&mut self, instruction: u8) {
         match instruction {
-            Instruction::ADD(target) => operation_on_a_match!(self, add, target),
-            Instruction::SUB(target) => operation_on_a_match!(self, subtract, target),
-            Instruction::AND(target) => operation_on_a_match!(self, and, target),
-            Instruction::ADC(target) => operation_on_a_match!(self, add_carry, target),
-            Instruction::SBC(target) => operation_on_a_match!(self, subtract_carry, target),
-            Instruction::OR(target) => operation_on_a_match!(self, or, target),
-            Instruction::XOR(target) => operation_on_a_match!(self, xor, target),
-            Instruction::INC(target) => operation_on_self_match!(self, increment, target),
-            Instruction::DEC(target) => operation_on_self_match!(self, decrement, target),
-            Instruction::RL(target) => operation_on_self_match!(self, rotate_left_carry, target),
-            Instruction::RR(target) => operation_on_self_match!(self, rotate_right_carry, target),
-            Instruction::RLC(target) => operation_on_self_match!(self, rotate_left, target),
-            Instruction::RRC(target) => operation_on_self_match!(self, rotate_right, target),
-            Instruction::SWAP(target) => operation_on_self_match!(self, swap, target),
-            Instruction::ADDHL(target) => match target {
-                R16Registers::BC => {
-                    let value = self.registers.get_bc();
-                    let new_value = self.add_hl(value);
-                    self.registers.set_hl(new_value);
-                }
-                R16Registers::DE => {
-                    let value = self.registers.get_de();
-                    let new_value = self.add_hl(value);
-                    self.registers.set_de(new_value);
-                }
-                R16Registers::HL => {
-                    let value = self.registers.get_hl();
-                    let new_value = self.add_hl(value);
-                    self.registers.set_hl(new_value);
-                }
-            },
-            Instruction::INC16(target) => match target {
-                R16Registers::BC => {
-                    let new_value = self.increment_16(self.registers.get_bc());
-                    self.registers.set_bc(new_value);
-                }
-                R16Registers::DE => {
-                    let new_value = self.increment_16(self.registers.get_de());
-                    self.registers.set_de(new_value);
-                }
-                R16Registers::HL => {
-                    let new_value = self.increment_16(self.registers.get_hl());
-                    self.registers.set_hl(new_value);
-                }
-            },
-            Instruction::DEC16(target) => match target {
-                R16Registers::BC => {
-                    let new_value = self.decrement_16(self.registers.get_bc());
-                    self.registers.set_bc(new_value);
-                }
-                R16Registers::DE => {
-                    let new_value = self.decrement_16(self.registers.get_de());
-                    self.registers.set_de(new_value);
-                }
-                R16Registers::HL => {
-                    let new_value = self.decrement_16(self.registers.get_hl());
-                    self.registers.set_hl(new_value);
-                }
-            },
+            // ADD A, r8
+            0x80 => {
+                self.registers.a = self.add(self.registers.b);
+            }
+            0x81 => {
+                self.registers.a = self.add(self.registers.c);
+            }
+            0x82 => {
+                self.registers.a = self.add(self.registers.d);
+            }
+            0x83 => {
+                self.registers.a = self.add(self.registers.e);
+            }
+            0x84 => {
+                self.registers.a = self.add(self.registers.h);
+            }
+            0x85 => {
+                self.registers.a = self.add(self.registers.l);
+            }
+            // TODO: ADD A, HL (0x86)
+            0x87 => {
+                self.registers.a = self.add(self.registers.a);
+            }
+            // ADC A, r8
+            0x88 => {
+                self.registers.a = self.add_carry(self.registers.b);
+            }
+            0x89 => {
+                self.registers.a = self.add_carry(self.registers.c);
+            }
+            0x8A => {
+                self.registers.a = self.add_carry(self.registers.d);
+            }
+            0x8B => {
+                self.registers.a = self.add_carry(self.registers.e);
+            }
+            0x8C => {
+                self.registers.a = self.add_carry(self.registers.h);
+            }
+            0x8D => {
+                self.registers.a = self.add_carry(self.registers.l);
+            }
+            // TODO: ADC A, HL (0x86)
+            0x8F => {
+                self.registers.a = self.add_carry(self.registers.a);
+            }
+            // SUB A, r8
+            0x90 => {
+                self.registers.a = self.subtract(self.registers.b);
+            }
+            0x91 => {
+                self.registers.a = self.subtract(self.registers.c);
+            }
+            0x92 => {
+                self.registers.a = self.subtract(self.registers.d);
+            }
+            0x93 => {
+                self.registers.a = self.subtract(self.registers.e);
+            }
+            0x94 => {
+                self.registers.a = self.subtract(self.registers.h);
+            }
+            0x95 => {
+                self.registers.l = self.subtract(self.registers.l);
+            }
+            // TODO: SUB A, HL (0x96)
+            0x97 => {
+                self.registers.a = self.subtract(self.registers.a);
+            }
+            // SBC A, r8
+            0x98 => {
+                self.registers.a = self.subtract_carry(self.registers.b);
+            }
+            0x99 => {
+                self.registers.a = self.subtract_carry(self.registers.c);
+            }
+            0x9A => {
+                self.registers.a = self.subtract_carry(self.registers.d);
+            }
+            0x9B => {
+                self.registers.a = self.subtract_carry(self.registers.e);
+            }
+            0x9C => {
+                self.registers.a = self.subtract_carry(self.registers.h);
+            }
+            0x9D => {
+                self.registers.a = self.subtract_carry(self.registers.l);
+            }
+            0x9F => {
+                self.registers.a = self.subtract(self.registers.a);
+            }
+            // AND A, r8
+            0xA0 => {
+                self.registers.a = self.and(self.registers.b);
+            }
+            0xA1 => {
+                self.registers.a = self.and(self.registers.c);
+            }
+            0xA2 => {
+                self.registers.a = self.and(self.registers.d);
+            }
+            0xA3 => {
+                self.registers.a = self.and(self.registers.e);
+            }
+            0xA4 => {
+                self.registers.a = self.and(self.registers.h);
+            }
+            0xA5 => {
+                self.registers.a = self.and(self.registers.l);
+            }
+            // TODO: AND A, HL
+            0xA7 => {
+                self.registers.a = self.and(self.registers.a);
+            }
+            _ => {
+                panic!(
+                    "A second plane has hit the tower: Tried to run OPCODE -> {}",
+                    instruction
+                );
+            }
         }
     }
 }
