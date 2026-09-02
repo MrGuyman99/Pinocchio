@@ -52,4 +52,20 @@ mod test {
         cpu.execute(0xA9);
         assert_eq!(0xFE, cpu.registers.a);
     }
+
+    #[test]
+    fn test_OR() {
+        let mut cpu = CPU::test();
+        cpu.registers.c = 0b0101_1010;
+        cpu.registers.a = 0b1010_0101;
+        cpu.execute(0xB1);
+        assert_eq!(0xFF, cpu.registers.a);
+    }
+
+    #[test]
+    fn test_INC() {
+        let mut cpu = CPU::test();
+        cpu.execute(0x0C);
+        assert_eq!(0x1, cpu.registers.c);
+    }
 }

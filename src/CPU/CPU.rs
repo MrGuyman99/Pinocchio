@@ -187,6 +187,27 @@ impl CPU {
 
     pub fn execute(&mut self, instruction: u8) {
         match instruction {
+            0x04 => {
+                self.registers.b = self.increment(self.registers.b);
+            }
+            0x14 => {
+                self.registers.d = self.increment(self.registers.d);
+            }
+            0x24 => {
+                self.registers.h = self.increment(self.registers.h);
+            }
+            0x0C => {
+                self.registers.c = self.increment(self.registers.c);
+            }
+            0x1C => {
+                self.registers.e = self.increment(self.registers.e);
+            }
+            0x2C => {
+                self.registers.l = self.increment(self.registers.l);
+            }
+            0x3C => {
+                self.registers.a = self.increment(self.registers.a);
+            }
             // ADD A, r8
             0x80 => {
                 self.registers.a = self.add(self.registers.b);
@@ -323,6 +344,29 @@ impl CPU {
             // TODO: XOR A, HL
             0xAF => {
                 self.registers.a = self.xor(self.registers.a);
+            }
+            // OR A, r8
+            0xB0 => {
+                self.registers.a = self.or(self.registers.b);
+            }
+            0xB1 => {
+                self.registers.a = self.or(self.registers.c);
+            }
+            0xB2 => {
+                self.registers.a = self.or(self.registers.d);
+            }
+            0xB3 => {
+                self.registers.a = self.or(self.registers.e);
+            }
+            0xB4 => {
+                self.registers.a = self.or(self.registers.h);
+            }
+            0xB5 => {
+                self.registers.a = self.or(self.registers.l);
+            }
+            // TODO: OR A, HL
+            0xB7 => {
+                self.registers.a = self.or(self.registers.a);
             }
             _ => {
                 panic!(

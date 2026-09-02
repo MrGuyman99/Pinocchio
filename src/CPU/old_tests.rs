@@ -1,11 +1,4 @@
 use crate::CPU::CPU::{ArithmeticTarget, CPU, Instruction, R16Registers};
-fn test_OR() {
-    let mut cpu = CPU::test();
-    cpu.registers.c = 0b0101_1010;
-    cpu.registers.a = 0b1010_0101;
-    cpu.execute(Instruction::OR(ArithmeticTarget::C));
-    assert_eq!(0xFF, cpu.registers.a);
-}
 
 #[test]
 fn test_SWAP() {
