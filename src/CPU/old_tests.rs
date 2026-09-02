@@ -8,24 +8,6 @@ fn test_OR() {
 }
 
 #[test]
-fn test_XOR() {
-    let mut cpu = CPU::test();
-    cpu.registers.c = 0b0101_1011;
-    cpu.registers.a = 0b1010_0101;
-    cpu.execute(Instruction::XOR(ArithmeticTarget::C));
-    assert_eq!(0xFE, cpu.registers.a);
-}
-
-#[test]
-fn test_AND() {
-    let mut cpu = CPU::test();
-    cpu.registers.c = 0xF;
-    cpu.registers.a = 0b1111_0101;
-    cpu.execute(Instruction::AND(ArithmeticTarget::C));
-    assert_eq!(0x5, cpu.registers.a);
-}
-
-#[test]
 fn test_SWAP() {
     let mut cpu = CPU::test();
     cpu.registers.c = 0xF;

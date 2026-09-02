@@ -43,4 +43,13 @@ mod test {
         cpu.execute(0xA1);
         assert_eq!(0x5, cpu.registers.a);
     }
+
+    #[test]
+    fn test_XOR() {
+        let mut cpu = CPU::test();
+        cpu.registers.c = 0b0101_1011;
+        cpu.registers.a = 0b1010_0101;
+        cpu.execute(0xA9);
+        assert_eq!(0xFE, cpu.registers.a);
+    }
 }

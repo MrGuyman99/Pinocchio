@@ -301,6 +301,29 @@ impl CPU {
             0xA7 => {
                 self.registers.a = self.and(self.registers.a);
             }
+            // XOR A, r8
+            0xA8 => {
+                self.registers.a = self.xor(self.registers.b);
+            }
+            0xA9 => {
+                self.registers.a = self.xor(self.registers.c);
+            }
+            0xAA => {
+                self.registers.a = self.xor(self.registers.d);
+            }
+            0xAB => {
+                self.registers.a = self.xor(self.registers.e);
+            }
+            0xAC => {
+                self.registers.a = self.xor(self.registers.h);
+            }
+            0xAD => {
+                self.registers.a = self.xor(self.registers.l);
+            }
+            // TODO: XOR A, HL
+            0xAF => {
+                self.registers.a = self.xor(self.registers.a);
+            }
             _ => {
                 panic!(
                     "A second plane has hit the tower: Tried to run OPCODE -> {}",
