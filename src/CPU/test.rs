@@ -68,4 +68,11 @@ mod test {
         cpu.execute(0x0C);
         assert_eq!(0x1, cpu.registers.c);
     }
+
+    #[test]
+    fn test_DEC() {
+        let mut cpu = CPU::test();
+        cpu.execute(0x0D);
+        assert_eq!(0xFF, cpu.registers.c);
+    }
 }

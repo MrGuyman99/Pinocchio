@@ -190,23 +190,44 @@ impl CPU {
             0x04 => {
                 self.registers.b = self.increment(self.registers.b);
             }
+            0x05 => {
+                self.registers.b = self.decrement(self.registers.b);
+            }
             0x14 => {
                 self.registers.d = self.increment(self.registers.d);
+            }
+            0x15 => {
+                self.registers.d = self.decrement(self.registers.d);
             }
             0x24 => {
                 self.registers.h = self.increment(self.registers.h);
             }
+            0x25 => {
+                self.registers.h = self.decrement(self.registers.h);
+            }
             0x0C => {
                 self.registers.c = self.increment(self.registers.c);
+            }
+            0x0D => {
+                self.registers.c = self.decrement(self.registers.c);
             }
             0x1C => {
                 self.registers.e = self.increment(self.registers.e);
             }
+            0x1D => {
+                self.registers.e = self.decrement(self.registers.e);
+            }
             0x2C => {
                 self.registers.l = self.increment(self.registers.l);
             }
+            0x2D => {
+                self.registers.l = self.decrement(self.registers.l);
+            }
             0x3C => {
                 self.registers.a = self.increment(self.registers.a);
+            }
+            0x3D => {
+                self.registers.a = self.decrement(self.registers.a);
             }
             // ADD A, r8
             0x80 => {
