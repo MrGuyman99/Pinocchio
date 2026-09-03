@@ -70,6 +70,20 @@ mod test {
     }
 
     #[test]
+    fn test_INC16() {
+        let mut cpu = CPU::test();
+        cpu.execute(0x03);
+        assert_eq!(0x1, cpu.registers.get_bc());
+    }
+
+    #[test]
+    fn test_DEC16() {
+        let mut cpu = CPU::test();
+        cpu.execute(0x0B);
+        assert_eq!(0xFFFF, cpu.registers.get_bc());
+    }
+
+    #[test]
     fn test_DEC() {
         let mut cpu = CPU::test();
         cpu.execute(0x0D);

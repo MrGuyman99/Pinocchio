@@ -187,11 +187,19 @@ impl CPU {
 
     pub fn execute(&mut self, instruction: u8) {
         match instruction {
+            0x03 => {
+                let value = self.increment_16(self.registers.get_bc());
+                self.registers.set_bc(value);
+            }
             0x04 => {
                 self.registers.b = self.increment(self.registers.b);
             }
             0x05 => {
                 self.registers.b = self.decrement(self.registers.b);
+            }
+            0x13 => {
+                let value = self.increment_16(self.registers.get_de());
+                self.registers.set_de(value);
             }
             0x14 => {
                 self.registers.d = self.increment(self.registers.d);
@@ -199,11 +207,20 @@ impl CPU {
             0x15 => {
                 self.registers.d = self.decrement(self.registers.d);
             }
+            0x23 => {
+                let value = self.increment_16(self.registers.get_hl());
+                self.registers.set_hl(value);
+            }
             0x24 => {
                 self.registers.h = self.increment(self.registers.h);
             }
             0x25 => {
                 self.registers.h = self.decrement(self.registers.h);
+            }
+
+            0x0B => {
+                let value = self.decrement_16(self.registers.get_bc());
+                self.registers.set_bc(value);
             }
             0x0C => {
                 self.registers.c = self.increment(self.registers.c);
@@ -211,11 +228,19 @@ impl CPU {
             0x0D => {
                 self.registers.c = self.decrement(self.registers.c);
             }
+            0x1B => {
+                let value = self.decrement_16(self.registers.get_de());
+                self.registers.set_de(value);
+            }
             0x1C => {
                 self.registers.e = self.increment(self.registers.e);
             }
             0x1D => {
                 self.registers.e = self.decrement(self.registers.e);
+            }
+            0x2B => {
+                let value = self.decrement_16(self.registers.get_hl());
+                self.registers.set_hl(value);
             }
             0x2C => {
                 self.registers.l = self.increment(self.registers.l);
