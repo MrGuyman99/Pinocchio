@@ -89,4 +89,46 @@ mod test {
         cpu.execute(0x0D);
         assert_eq!(0xFF, cpu.registers.c);
     }
+
+    #[test]
+    fn test_RLC() {
+        let mut cpu = CPU::test();
+        cpu.registers.c = 0b1010_0100;
+        cpu.execute_cb_prefixed(0x01);
+        assert_eq!(true, cpu.registers.f.carry);
+        assert_eq!(0b0100_1000, cpu.registers.c);
+    }
+
+    #[test]
+    fn test_RRC() {
+        let mut cpu = CPU::test();
+        cpu.registers.c = 0b1010_0100;
+        cpu.execute_cb_prefixed(0x09);
+        assert_eq!(false, cpu.registers.f.carry);
+        assert_eq!(0b0101_0010, cpu.registers.c);
+    }
+
+    #[test]
+    fn test_RL() {
+        let mut cpu = CPU::test();
+        cpu.registers.c = 0b1010_0101;
+        cpu.execute_cb_prefixed(0x11);
+        assert_eq!(0b0100_1011, cpu.registers.c);
+    }
+
+    #[test]
+    fn test_RR() {
+        let mut cpu = CPU::test();
+        cpu.registers.c = 0b1010_0100;
+        cpu.execute_cb_prefixed(0x19);
+        assert_eq!(0b0101_0010, cpu.registers.c);
+    }
+
+    #[test]
+    fn test_SWAP() {
+        let mut cpu = CPU::test();
+        cpu.registers.c = 0xF;
+        cpu.execute_cb_prefixed(0x31);
+        assert_eq!(0xF0, cpu.registers.c);
+    }
 }

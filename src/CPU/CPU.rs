@@ -185,6 +185,128 @@ impl CPU {
         new_value
     }
 
+    pub fn execute_cb_prefixed(&mut self, instruction: u8) {
+        match instruction {
+            0x00 => {
+                self.registers.b = self.rotate_left_carry(self.registers.b);
+            }
+            0x01 => {
+                self.registers.c = self.rotate_left_carry(self.registers.c);
+            }
+            0x02 => {
+                self.registers.d = self.rotate_left_carry(self.registers.d);
+            }
+            0x03 => {
+                self.registers.e = self.rotate_left_carry(self.registers.e);
+            }
+            0x04 => {
+                self.registers.h = self.rotate_left_carry(self.registers.h);
+            }
+            0x05 => {
+                self.registers.l = self.rotate_left_carry(self.registers.l);
+            }
+            // TODO: RLC HL
+            0x07 => {
+                self.registers.a = self.rotate_left_carry(self.registers.a);
+            }
+            0x08 => {
+                self.registers.b = self.rotate_right_carry(self.registers.b);
+            }
+            0x09 => {
+                self.registers.c = self.rotate_right_carry(self.registers.c);
+            }
+            0x0A => {
+                self.registers.d = self.rotate_right_carry(self.registers.d);
+            }
+            0x0B => {
+                self.registers.e = self.rotate_right_carry(self.registers.e);
+            }
+            0x0C => {
+                self.registers.h = self.rotate_right_carry(self.registers.h);
+            }
+            0x0D => {
+                self.registers.l = self.rotate_right_carry(self.registers.l);
+            }
+            // TODO: RRC HL
+            0x0F => {
+                self.registers.a = self.rotate_right_carry(self.registers.a);
+            }
+            0x10 => {
+                self.registers.b = self.rotate_left(self.registers.b);
+            }
+            0x11 => {
+                self.registers.c = self.rotate_left(self.registers.c);
+            }
+            0x12 => {
+                self.registers.d = self.rotate_left(self.registers.d);
+            }
+            0x13 => {
+                self.registers.e = self.rotate_left(self.registers.e);
+            }
+            0x14 => {
+                self.registers.h = self.rotate_left(self.registers.h);
+            }
+            0x15 => {
+                self.registers.l = self.rotate_left(self.registers.l);
+            }
+            // TODO: RL HL
+            0x17 => {
+                self.registers.a = self.rotate_left(self.registers.a);
+            }
+            0x18 => {
+                self.registers.b = self.rotate_right(self.registers.b);
+            }
+            0x19 => {
+                self.registers.c = self.rotate_right(self.registers.c);
+            }
+            0x1A => {
+                self.registers.d = self.rotate_right(self.registers.d);
+            }
+            0x1B => {
+                self.registers.e = self.rotate_right(self.registers.e);
+            }
+            0x1C => {
+                self.registers.h = self.rotate_right(self.registers.h);
+            }
+            0x1D => {
+                self.registers.l = self.rotate_right(self.registers.l);
+            }
+            // TODO: RR HL
+            0x1F => {
+                self.registers.a = self.rotate_right(self.registers.a);
+            }
+            0x30 => {
+                self.registers.b = self.swap(self.registers.b);
+            }
+            0x31 => {
+                self.registers.c = self.swap(self.registers.c);
+            }
+            0x32 => {
+                self.registers.d = self.swap(self.registers.d);
+            }
+            0x33 => {
+                self.registers.e = self.swap(self.registers.e);
+            }
+            0x34 => {
+                self.registers.h = self.swap(self.registers.h);
+            }
+            0x35 => {
+                self.registers.l = self.swap(self.registers.l);
+            }
+            // TODO: Swap HL
+            0x37 => {
+                self.registers.a = self.swap(self.registers.a);
+            }
+            _ => {
+                println!("Instruction {} not implemented!", instruction);
+            }
+        }
+    }
+    /*
+    For the future, what rboy does is it fetches the byte of the instruction in a seperate function
+    then, when 0xCB is called it passes the instruction to THAT function. I'm not emulating the mmu at this current stage so if you called 0xCB in execute
+    the instruction will always be an unimplemented.
+    */
     pub fn execute(&mut self, instruction: u8) {
         match instruction {
             0x03 => {
@@ -413,6 +535,9 @@ impl CPU {
             // TODO: OR A, HL
             0xB7 => {
                 self.registers.a = self.or(self.registers.a);
+            }
+            0xCB => {
+                self.execute_cb_prefixed(instruction);
             }
             _ => {
                 panic!(
