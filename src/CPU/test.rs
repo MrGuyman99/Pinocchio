@@ -6,7 +6,7 @@ mod test {
     fn test_ADD() {
         let mut cpu = CPU::test();
         cpu.registers.c = 1;
-        cpu.execute(0x81);
+        cpu.execute(false, 0x81);
         assert_eq!(0x1, cpu.registers.a)
     }
 
@@ -14,7 +14,7 @@ mod test {
     fn test_ADC() {
         let mut cpu = CPU::test();
         cpu.registers.f.carry = true;
-        cpu.execute(0x89);
+        cpu.execute(false, 0x89);
         assert_eq!(0x1, cpu.registers.a);
     }
 
@@ -22,7 +22,7 @@ mod test {
     fn test_SUB() {
         let mut cpu = CPU::test();
         cpu.registers.c = 0x1;
-        cpu.execute(0x91);
+        cpu.execute(false, 0x91);
         assert_eq!(0xFF, cpu.registers.a);
     }
 
@@ -31,7 +31,7 @@ mod test {
         let mut cpu = CPU::test();
         cpu.registers.f.carry = true;
         cpu.registers.c = 0x1;
-        cpu.execute(0x99);
+        cpu.execute(false, 0x99);
         assert_eq!(0xFE, cpu.registers.a);
     }
 
@@ -40,7 +40,7 @@ mod test {
         let mut cpu = CPU::test();
         cpu.registers.c = 0xF;
         cpu.registers.a = 0b1111_0101;
-        cpu.execute(0xA1);
+        cpu.execute(false, 0xA1);
         assert_eq!(0x5, cpu.registers.a);
     }
 
@@ -49,7 +49,7 @@ mod test {
         let mut cpu = CPU::test();
         cpu.registers.c = 0b0101_1011;
         cpu.registers.a = 0b1010_0101;
-        cpu.execute(0xA9);
+        cpu.execute(false, 0xA9);
         assert_eq!(0xFE, cpu.registers.a);
     }
 
@@ -58,35 +58,35 @@ mod test {
         let mut cpu = CPU::test();
         cpu.registers.c = 0b0101_1010;
         cpu.registers.a = 0b1010_0101;
-        cpu.execute(0xB1);
+        cpu.execute(false, 0xB1);
         assert_eq!(0xFF, cpu.registers.a);
     }
 
     #[test]
     fn test_INC() {
         let mut cpu = CPU::test();
-        cpu.execute(0x0C);
+        cpu.execute(false, 0x0C);
         assert_eq!(0x1, cpu.registers.c);
     }
 
     #[test]
     fn test_INC16() {
         let mut cpu = CPU::test();
-        cpu.execute(0x03);
+        cpu.execute(false, 0x03);
         assert_eq!(0x1, cpu.registers.get_bc());
     }
 
     #[test]
     fn test_DEC16() {
         let mut cpu = CPU::test();
-        cpu.execute(0x0B);
+        cpu.execute(false, 0x0B);
         assert_eq!(0xFFFF, cpu.registers.get_bc());
     }
 
     #[test]
     fn test_DEC() {
         let mut cpu = CPU::test();
-        cpu.execute(0x0D);
+        cpu.execute(false, 0x0D);
         assert_eq!(0xFF, cpu.registers.c);
     }
 
