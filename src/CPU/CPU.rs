@@ -401,6 +401,11 @@ impl CPU {
                 self.registers.b = self.decrement(self.registers.b);
                 self.pc.wrapping_add(1)
             }
+            0x09 => {
+                let value = self.add_hl(self.registers.get_bc());
+                self.registers.set_hl(value);
+                self.pc.wrapping_add(1)
+            }
             0x13 => {
                 let value = self.increment_16(self.registers.get_de());
                 self.registers.set_de(value);
@@ -412,6 +417,11 @@ impl CPU {
             }
             0x15 => {
                 self.registers.d = self.decrement(self.registers.d);
+                self.pc.wrapping_add(1)
+            }
+            0x19 => {
+                let value = self.add_hl(self.registers.get_de());
+                self.registers.set_hl(value);
                 self.pc.wrapping_add(1)
             }
             0x23 => {
@@ -427,7 +437,12 @@ impl CPU {
                 self.registers.h = self.decrement(self.registers.h);
                 self.pc.wrapping_add(1)
             }
-
+            0x29 => {
+                let value = self.add_hl(self.registers.get_hl());
+                self.registers.set_hl(value);
+                self.pc.wrapping_add(1)
+            }
+            // ADD HL, SP
             0x0B => {
                 let value = self.decrement_16(self.registers.get_bc());
                 self.registers.set_bc(value);

@@ -131,4 +131,12 @@ mod test {
         cpu.execute_cb_prefixed(0x31);
         assert_eq!(0xF0, cpu.registers.c);
     }
+
+    #[test]
+    fn test_ADDHL() {
+        let mut cpu = CPU::test();
+        cpu.registers.set_bc(0x10);
+        cpu.execute(false, 0x09);
+        assert_eq!(0x10, cpu.registers.get_hl());
+    }
 }
