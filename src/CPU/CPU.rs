@@ -708,7 +708,7 @@ impl CPU {
             }
             _ => {
                 panic!(
-                    "A second plane has hit the tower: Tried to run OPCODE -> {}",
+                    "AN UNIMPLEMENTED INSTRUCTION HAS OCCURED (Cause MrGuyman99 is a lazy bum): Tried to run OPCODE -> {}",
                     instruction
                 );
             }
