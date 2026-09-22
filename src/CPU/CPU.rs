@@ -69,6 +69,10 @@ impl CPU {
         }
     }
 
+    fn jump_hl(&self) -> u16 {
+        self.pc.wrapping_add(self.registers.get_hl())
+    }
+
     fn add(&mut self, value: u8) -> u8 {
         let (new_value, did_overflow) = self.registers.a.overflowing_add(value);
         self.registers.f.zero = new_value == 0;
@@ -699,16 +703,19 @@ impl CPU {
                 self.registers.a = self.or(self.registers.a);
                 self.pc.wrapping_add(1)
             }
-            0xDA => {
-                let jump_condition = !self.registers.f.zero
-                    || !self.registers.f.carry
-                    || self.registers.f.zero
-                    || self.registers.f.carry;
-                self.jump(jump_condition)
+            0xC3 => {
+                // I'm pretty sure this is how this works?
+                // Don't worry everyone, your emulators are developed with confidence
+                self.jump(true)
             }
+            0xC2 => self.jump(!self.registers.f.zero),
+            0xCA => self.jump(self.registers.f.zero),
+            0xE9 => self.jump_hl(),
+            0xD2 => self.jump(!self.registers.f.carry),
+            0xDA => self.jump(self.registers.f.carry),
             _ => {
                 panic!(
-                    "AN UNIMPLEMENTED INSTRUCTION HAS OCCURED (Cause MrGuyman99 is a lazy bum): Tried to run OPCODE -> {}",
+                    "AN UNIMPLEMENTED INSTRUCTION HAS OCCURED (Because MrGuyman99 is a lazy bum): Tried to run OPCODE -> {}",
                     instruction
                 );
             }

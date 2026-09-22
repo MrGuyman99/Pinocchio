@@ -74,8 +74,6 @@ Bit shift instructions:
 Jumps and subroutine instructions:
 - CALL n16
 - CALL cc,n16
-- JP HL
-- JP n16
 - JR n16
 - JR cc,n16
 - RET cc
@@ -130,3 +128,5 @@ Finished Instructions:
 - SUB A, r8
 - SBC A, r8
 - JP cc,n16
+- JP n16
+- JP HL
