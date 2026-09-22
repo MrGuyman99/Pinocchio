@@ -76,7 +76,6 @@ Jumps and subroutine instructions:
 - CALL cc,n16
 - JP HL
 - JP n16
-- JP cc,n16
 - JR n16
 - JR cc,n16
 - RET cc
@@ -130,3 +129,4 @@ Finished Instructions:
 - SWAP r8
 - SUB A, r8
 - SBC A, r8
+- JP cc,n16

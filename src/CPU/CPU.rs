@@ -1,12 +1,12 @@
 use super::registers;
 
-enum JumpTest {
-    NotZero,
-    Zero,
-    NotCarry,
-    Carry,
-    Always,
-}
+/*
+General Loop:
+- Run step
+- Step runs execute
+- Execute Returns a value for PC
+Repeat ad infinitum
+*/
 
 struct MemoryBus {
     memory: [u8; 0xFFFF],
@@ -698,6 +698,13 @@ impl CPU {
             0xB7 => {
                 self.registers.a = self.or(self.registers.a);
                 self.pc.wrapping_add(1)
+            }
+            0xDA => {
+                let jump_condition = !self.registers.f.zero
+                    || !self.registers.f.carry
+                    || self.registers.f.zero
+                    || self.registers.f.carry;
+                self.jump(jump_condition)
             }
             _ => {
                 panic!(
