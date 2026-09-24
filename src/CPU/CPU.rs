@@ -60,12 +60,22 @@ impl CPU {
 
     fn jump(&self, should_jump: bool) -> u16 {
         if should_jump {
-            let least_significant_byte = self.bus.read_byte(self.pc + 1) as u16;
-            let most_significant_byte = self.bus.read_byte(self.pc + 2) as u16;
+            let least_significant_byte = self.bus.read_byte(self.pc.wrapping_add(1)) as u16;
+            let most_significant_byte = self.bus.read_byte(self.pc.wrapping_add(2)) as u16;
             (most_significant_byte << 8) | least_significant_byte
         } else {
             // Move program counter by 3 since jump is 3 bytes wide
             self.pc.wrapping_add(3)
+        }
+    }
+
+    fn jump_relative(&self, should_jump: bool) -> u16 {
+        let next_pc = self.pc.wrapping_add(2);
+        if should_jump {
+            let offset = self.bus.read_byte(self.pc.wrapping_add(1)) as i8;
+            next_pc.wrapping_add(offset as u16)
+        } else {
+            next_pc
         }
     }
 
@@ -460,6 +470,7 @@ impl CPU {
                 self.registers.c = self.decrement(self.registers.c);
                 self.pc.wrapping_add(1)
             }
+            0x18 => self.jump_relative(true),
             0x1B => {
                 let value = self.decrement_16(self.registers.get_de());
                 self.registers.set_de(value);
@@ -473,6 +484,8 @@ impl CPU {
                 self.registers.e = self.decrement(self.registers.e);
                 self.pc.wrapping_add(1)
             }
+            0x20 => self.jump_relative(!self.registers.f.zero),
+            0x28 => self.jump_relative(self.registers.f.zero),
             0x2B => {
                 let value = self.decrement_16(self.registers.get_hl());
                 self.registers.set_hl(value);
@@ -486,6 +499,8 @@ impl CPU {
                 self.registers.l = self.decrement(self.registers.l);
                 self.pc.wrapping_add(1)
             }
+            0x30 => self.jump_relative(!self.registers.f.carry),
+            0x38 => self.jump_relative(self.registers.f.carry),
             0x3C => {
                 self.registers.a = self.increment(self.registers.a);
                 self.pc.wrapping_add(1)
