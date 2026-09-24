@@ -139,4 +139,24 @@ mod test {
         cpu.execute(false, 0x09);
         assert_eq!(0x10, cpu.registers.get_hl());
     }
+
+    #[test]
+    fn test_JP() {
+        let mut cpu = CPU::test();
+        cpu.bus = MemoryBus {
+            memory: [0x5; 0xFFFF],
+        };
+        cpu.pc = cpu.execute(false, 0xD2);
+        assert_eq!(0x0505, cpu.pc);
+    }
+
+    #[test]
+    fn test_JR() {
+        let mut cpu = CPU::test();
+        cpu.bus = MemoryBus {
+            memory: [0x2; 0xFFFF],
+        };
+        cpu.pc = cpu.execute(false, 0x18);
+        assert_eq!(0x4, cpu.pc);
+    }
 }

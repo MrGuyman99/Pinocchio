@@ -8,8 +8,8 @@ General Loop:
 Repeat ad infinitum
 */
 
-struct MemoryBus {
-    memory: [u8; 0xFFFF],
+pub struct MemoryBus {
+    pub memory: [u8; 0xFFFF],
 }
 
 impl MemoryBus {
@@ -20,8 +20,8 @@ impl MemoryBus {
 
 pub struct CPU {
     pub registers: registers::Registers,
-    pc: u16,
-    bus: MemoryBus,
+    pub pc: u16,
+    pub bus: MemoryBus,
 }
 
 impl CPU {
