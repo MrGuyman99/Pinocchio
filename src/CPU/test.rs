@@ -141,6 +141,16 @@ mod test {
     }
 
     #[test]
+    fn test_CP() {
+        let mut cpu = CPU::test();
+        cpu.registers.c = 0xF;
+        cpu.registers.a = 0xF;
+        cpu.execute(false, 0xB9);
+        assert_eq!(0xF, cpu.registers.a);
+        assert_eq!(true, cpu.registers.f.zero);
+    }
+
+    #[test]
     fn test_JP() {
         let mut cpu = CPU::test();
         cpu.bus = MemoryBus {
