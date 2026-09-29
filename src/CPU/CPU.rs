@@ -150,19 +150,15 @@ impl CPU {
         new_value
     }
 
+    // Both of these don't set any flags, which is kind of nuts
+    // Some seperate unit takes care of the addition and subtraction and surpasses the regular gameboy control flow
     fn increment_16(&mut self, value: u16) -> u16 {
         let new_value = value.wrapping_add(1);
-        self.registers.f.zero = new_value == 0;
-        self.registers.f.subtract = true;
-        self.registers.f.half_carry = (value & 0xFF) == 0xFF;
         new_value
     }
 
     fn decrement_16(&mut self, value: u16) -> u16 {
         let new_value = value.wrapping_sub(1);
-        self.registers.f.zero = new_value == 0;
-        self.registers.f.subtract = true;
-        self.registers.f.half_carry = (value & 0xFF) == 0x0;
         new_value
     }
 
@@ -182,6 +178,24 @@ impl CPU {
         self.registers.f.carry = false;
         self.registers.f.half_carry = false;
         new_value
+    }
+
+    fn xor_hl(&mut self, value: u16) -> u16 {
+        let new_value = (self.registers.a as u16) ^ value;
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.carry = false;
+        self.registers.f.half_carry = false;
+        new_value
+    }
+
+    // Compare is just subtraction but we don't return the zero
+    fn compare(&mut self, value: u8) {
+        let (new_value, did_overflow) = self.registers.a.overflowing_sub(value);
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = true;
+        self.registers.f.carry = did_overflow;
+        self.registers.f.half_carry = (self.registers.a & 0xF) < (value & 0xF);
     }
 
     fn and(&mut self, value: u8) -> u8 {
@@ -628,7 +642,35 @@ impl CPU {
                 self.registers.a = self.subtract(self.registers.a);
                 self.pc.wrapping_add(1)
             }
-            // AND A, r8
+            0xB8 => {
+                self.compare(self.registers.b);
+                self.pc.wrapping_add(1)
+            }
+            0xB9 => {
+                self.compare(self.registers.c);
+                self.pc.wrapping_add(1)
+            }
+            0xBA => {
+                self.compare(self.registers.d);
+                self.pc.wrapping_add(1)
+            }
+            0xBB => {
+                self.compare(self.registers.e);
+                self.pc.wrapping_add(1)
+            }
+            0xBC => {
+                self.compare(self.registers.h);
+                self.pc.wrapping_add(1)
+            }
+            0xBD => {
+                self.compare(self.registers.d);
+                self.pc.wrapping_add(1)
+            }
+            // TODO: CP A, HL
+            0xBF => {
+                self.compare(self.registers.a);
+                self.pc.wrapping_add(1)
+            }
             0xA0 => {
                 self.registers.a = self.and(self.registers.b);
                 self.pc.wrapping_add(1)
@@ -683,7 +725,11 @@ impl CPU {
                 self.registers.a = self.xor(self.registers.l);
                 self.pc.wrapping_add(1)
             }
-            // TODO: XOR A, HL
+            0xAE => {
+                let value = self.xor_hl(self.registers.get_hl());
+                self.registers.set_hl(value);
+                self.pc.wrapping_add(1)
+            }
             0xAF => {
                 self.registers.a = self.xor(self.registers.a);
                 self.pc.wrapping_add(1)

@@ -23,7 +23,6 @@ Load instructions:
 - ADC A,n8
 - ADD A,[HL]
 - ADD A,n8
-- CP A,r8
 - CP A,[HL]
 - CP A,n8
 - DEC [HL]
@@ -33,17 +32,12 @@ Load instructions:
 - SUB A,[HL]
 - SUB A,n8
 
-16-bit arithmetic instructions:
-- DEC r16
-- INC r16
-
 Bitwise logic instructions
 - AND A,[HL]
 - AND A,n8
 - CPL
 - OR A,[HL]
 - OR A,n8
-- XOR A,[HL]
 - XOR A,n8
 
 Bit flag instructions:
@@ -130,3 +124,7 @@ Finished Instructions:
 - JP HL
 - JR n16
 - JR cc,n16
+- XOR A,[HL]
+- DEC r16
+- INC r16
+- CP A,r8
