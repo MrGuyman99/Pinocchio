@@ -50,14 +50,11 @@ Bit flag instructions:
 
 Bit shift instructions:
 - RL [HL]
-- RLA
 - RLC [HL]
 - RLCA
 - RR [HL]
-- RRA
 - RRC [HL]
 - RRCA
-- SLA r8
 - SLA [HL]
 - SRA r8
 - SRA [HL]
@@ -128,3 +125,6 @@ Finished Instructions:
 - DEC r16
 - INC r16
 - CP A,r8
+- RLA
+- RRA
+- SLA r8

@@ -230,7 +230,7 @@ impl CPU {
 
     fn rotate_right_carry(&mut self, value: u8) -> u8 {
         let old_carry = u8::from(self.registers.f.carry) << 7;
-        let new_carry = (value & 0x1) != 0;
+        let new_carry = (value & 0x1) == 1;
         let new_value = (value >> 1) | old_carry;
 
         self.registers.f.carry = new_carry;
@@ -258,152 +258,186 @@ impl CPU {
         new_value
     }
 
+    fn shift_left(&mut self, value: u8) -> u8 {
+        let new_carry = (value & 0x80) == 1;
+        let new_value = value << 1;
+
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.half_carry = false;
+        self.registers.f.carry = new_carry;
+        new_value
+    }
+
     pub fn execute_cb_prefixed(&mut self, instruction: u8) -> u16 {
         match instruction {
             0x00 => {
                 self.registers.b = self.rotate_left_carry(self.registers.b);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x01 => {
                 self.registers.c = self.rotate_left_carry(self.registers.c);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x02 => {
                 self.registers.d = self.rotate_left_carry(self.registers.d);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x03 => {
                 self.registers.e = self.rotate_left_carry(self.registers.e);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x04 => {
                 self.registers.h = self.rotate_left_carry(self.registers.h);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x05 => {
                 self.registers.l = self.rotate_left_carry(self.registers.l);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
-            // TODO: RLC HL
             0x07 => {
                 self.registers.a = self.rotate_left_carry(self.registers.a);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x08 => {
                 self.registers.b = self.rotate_right_carry(self.registers.b);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x09 => {
                 self.registers.c = self.rotate_right_carry(self.registers.c);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x0A => {
                 self.registers.d = self.rotate_right_carry(self.registers.d);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x0B => {
                 self.registers.e = self.rotate_right_carry(self.registers.e);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x0C => {
                 self.registers.h = self.rotate_right_carry(self.registers.h);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x0D => {
                 self.registers.l = self.rotate_right_carry(self.registers.l);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
-            // TODO: RRC HL
             0x0F => {
                 self.registers.a = self.rotate_right_carry(self.registers.a);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x10 => {
                 self.registers.b = self.rotate_left(self.registers.b);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x11 => {
                 self.registers.c = self.rotate_left(self.registers.c);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x12 => {
                 self.registers.d = self.rotate_left(self.registers.d);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x13 => {
                 self.registers.e = self.rotate_left(self.registers.e);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x14 => {
                 self.registers.h = self.rotate_left(self.registers.h);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x15 => {
                 self.registers.l = self.rotate_left(self.registers.l);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
-            // TODO: RL HL
             0x17 => {
                 self.registers.a = self.rotate_left(self.registers.a);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x18 => {
                 self.registers.b = self.rotate_right(self.registers.b);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x19 => {
                 self.registers.c = self.rotate_right(self.registers.c);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x1A => {
                 self.registers.d = self.rotate_right(self.registers.d);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x1B => {
                 self.registers.e = self.rotate_right(self.registers.e);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x1C => {
                 self.registers.h = self.rotate_right(self.registers.h);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x1D => {
                 self.registers.l = self.rotate_right(self.registers.l);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
-            // TODO: RR HL
             0x1F => {
                 self.registers.a = self.rotate_right(self.registers.a);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
+            }
+            0x20 => {
+                self.registers.b = self.shift_left(self.registers.b);
+                self.pc.wrapping_add(2)
+            }
+            0x21 => {
+                self.registers.c = self.shift_left(self.registers.c);
+                self.pc.wrapping_add(2)
+            }
+            0x22 => {
+                self.registers.d = self.shift_left(self.registers.d);
+                self.pc.wrapping_add(2)
+            }
+            0x23 => {
+                self.registers.e = self.shift_left(self.registers.e);
+                self.pc.wrapping_add(2)
+            }
+            0x24 => {
+                self.registers.h = self.shift_left(self.registers.h);
+                self.pc.wrapping_add(2)
+            }
+            0x25 => {
+                self.registers.l = self.shift_left(self.registers.l);
+                self.pc.wrapping_add(2)
+            }
+            0x27 => {
+                self.registers.a = self.shift_left(self.registers.a);
+                self.pc.wrapping_add(2)
             }
             0x30 => {
                 self.registers.b = self.swap(self.registers.b);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x31 => {
                 self.registers.c = self.swap(self.registers.c);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x32 => {
                 self.registers.d = self.swap(self.registers.d);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x33 => {
                 self.registers.e = self.swap(self.registers.e);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x34 => {
                 self.registers.h = self.swap(self.registers.h);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             0x35 => {
                 self.registers.l = self.swap(self.registers.l);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
-            // TODO: Swap HL
             0x37 => {
                 self.registers.a = self.swap(self.registers.a);
-                self.pc.wrapping_add(1)
+                self.pc.wrapping_add(2)
             }
             _ => {
                 panic!("Instruction {} not implemented!", instruction);
@@ -429,6 +463,10 @@ impl CPU {
                 self.registers.b = self.decrement(self.registers.b);
                 self.pc.wrapping_add(1)
             }
+            0x07 => {
+                self.registers.a = self.rotate_left_carry(self.registers.a);
+                self.pc.wrapping_add(1)
+            }
             0x09 => {
                 let value = self.add_hl(self.registers.get_bc());
                 self.registers.set_hl(value);
@@ -450,6 +488,10 @@ impl CPU {
             0x19 => {
                 let value = self.add_hl(self.registers.get_de());
                 self.registers.set_hl(value);
+                self.pc.wrapping_add(1)
+            }
+            0x1F => {
+                self.registers.a = self.rotate_right_carry(self.registers.a);
                 self.pc.wrapping_add(1)
             }
             0x23 => {
