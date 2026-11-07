@@ -1,4 +1,3 @@
-// All tests are done on register c
 #[cfg(test)]
 mod test {
     use crate::CPU::CPU::*;
@@ -81,6 +80,30 @@ mod test {
         let mut cpu = CPU::test();
         cpu.execute(false, 0x0B);
         assert_eq!(0xFFFF, cpu.registers.get_bc());
+    }
+
+    #[test]
+    fn test_INC_HL() {
+        let mut cpu = CPU::test();
+        cpu.bus = MemoryBus {
+            memory: [0x0; 0xFFFF],
+        };
+        cpu.bus.memory[0x5] = 0x6;
+        cpu.registers.set_hl(0x5);
+        cpu.execute(false, 0x34);
+        assert_eq!(0x7, cpu.bus.memory[0x5]);
+    }
+
+    #[test]
+    fn test_DEC_HL() {
+        let mut cpu = CPU::test();
+        cpu.bus = MemoryBus {
+            memory: [0x0; 0xFFFF],
+        };
+        cpu.bus.memory[0x5] = 0x6;
+        cpu.registers.set_hl(0x5);
+        cpu.execute(false, 0x35);
+        assert_eq!(0x5, cpu.bus.memory[0x5]);
     }
 
     #[test]
@@ -183,6 +206,7 @@ mod test {
         cpu.execute(false, 0x86);
         assert_eq!(0x6, cpu.registers.a);
     }
+
     #[test]
     fn test_ADC_A_HL() {
         let mut cpu = CPU::test();
@@ -195,6 +219,7 @@ mod test {
         cpu.execute(false, 0x8E);
         assert_eq!(0x7, cpu.registers.a);
     }
+
     #[test]
     fn test_SUB_A_HL() {
         let mut cpu = CPU::test();
@@ -207,6 +232,7 @@ mod test {
         cpu.execute(false, 0x96);
         assert_eq!(0x0, cpu.registers.a);
     }
+
     #[test]
     fn test_SBC_A_HL() {
         let mut cpu = CPU::test();

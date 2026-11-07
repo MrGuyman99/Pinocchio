@@ -19,10 +19,6 @@ Load instructions:
 - LD A,[HLD]
 
 8-bit arithmetic instructions:
-- SBC A,[HL]
-- CP A,[HL]
-- DEC [HL]
-- INC [HL]
 - ADC A,n8
 - ADD A,n8
 - CP A,n8
@@ -128,3 +124,7 @@ Finished Instructions:
 - ADD A,[HL]
 - SUB A,[HL]
 - ADC A,[HL]
+- SBC A,[HL]
+- CP A,[HL]
+- INC [HL]
+- DEC [HL]

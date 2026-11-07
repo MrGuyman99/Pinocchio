@@ -16,6 +16,11 @@ impl MemoryBus {
     fn read_byte(&self, address: u16) -> u8 {
         self.memory[address as usize]
     }
+
+    fn write_byte(&mut self, address: u16, value: u8) {
+        let ref_memory = &mut self.memory[address as usize];
+        *ref_memory = value;
+    }
 }
 
 pub struct CPU {
@@ -185,7 +190,7 @@ impl CPU {
 
     fn increment(&mut self, value: u8) -> u8 {
         let new_value = value.wrapping_add(1);
-        self.registers.f.zero = value == 0;
+        self.registers.f.zero = new_value == 0;
         self.registers.f.subtract = false;
         self.registers.f.half_carry = (value & 0xF) == 0xF;
         new_value
@@ -197,6 +202,24 @@ impl CPU {
         self.registers.f.subtract = true;
         self.registers.f.half_carry = (value & 0xF) == 0x0;
         new_value
+    }
+
+    fn increment_hl(&mut self) {
+        let value = self.bus.read_byte(self.registers.get_hl());
+        let new_value = value.wrapping_add(1);
+        self.bus.write_byte(self.registers.get_hl(), new_value);
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.half_carry = (value & 0xF) == 0xF;
+    }
+
+    fn decrement_hl(&mut self) {
+        let value = self.bus.read_byte(self.registers.get_hl());
+        let new_value = value.wrapping_sub(1);
+        self.bus.write_byte(self.registers.get_hl(), new_value);
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = true;
+        self.registers.f.half_carry = (value & 0xF) == 0x0;
     }
 
     // Both of these don't set any flags, which is kind of nuts
@@ -245,6 +268,15 @@ impl CPU {
         self.registers.f.subtract = true;
         self.registers.f.carry = did_overflow;
         self.registers.f.half_carry = (self.registers.a & 0xF) < (value & 0xF);
+    }
+
+    fn compare_hl(&mut self) {
+        let value = self.bus.read_byte(self.registers.get_hl()) as u16;
+        let (new_value, did_overflow) = (self.registers.a as u16).overflowing_sub(value);
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = true;
+        self.registers.f.carry = did_overflow;
+        self.registers.f.half_carry = (self.registers.a as u16 & 0xFF) < (value as u16 & 0xFF);
     }
 
     fn and(&mut self, value: u8) -> u8 {
@@ -605,6 +637,14 @@ impl CPU {
                 self.pc.wrapping_add(1)
             }
             0x30 => self.jump_relative(!self.registers.f.carry),
+            0x34 => {
+                self.increment_hl();
+                self.pc.wrapping_add(1)
+            }
+            0x35 => {
+                self.decrement_hl();
+                self.pc.wrapping_add(1)
+            }
             0x38 => self.jump_relative(self.registers.f.carry),
             0x3C => {
                 self.registers.a = self.increment(self.registers.a);
@@ -770,7 +810,10 @@ impl CPU {
                 self.compare(self.registers.d);
                 self.pc.wrapping_add(1)
             }
-            // TODO: CP A, HL
+            0xBE => {
+                self.compare_hl();
+                self.pc.wrapping_add(1)
+            }
             0xBF => {
                 self.compare(self.registers.a);
                 self.pc.wrapping_add(1)
