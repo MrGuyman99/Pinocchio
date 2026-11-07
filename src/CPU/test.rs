@@ -207,4 +207,17 @@ mod test {
         cpu.execute(false, 0x96);
         assert_eq!(0x0, cpu.registers.a);
     }
+    #[test]
+    fn test_SBC_A_HL() {
+        let mut cpu = CPU::test();
+        cpu.registers.a = 0x7;
+        cpu.bus = MemoryBus {
+            memory: [0x0; 0xFFFF],
+        };
+        cpu.registers.f.carry = true;
+        cpu.bus.memory[0x5] = 0x6;
+        cpu.registers.set_hl(0x5);
+        cpu.execute(false, 0x9E);
+        assert_eq!(0x0, cpu.registers.a);
+    }
 }
