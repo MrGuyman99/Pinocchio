@@ -147,6 +147,16 @@ impl CPU {
         new_value
     }
 
+    fn subtract_a_hl(&mut self) -> u8 {
+        let value = self.bus.read_byte(self.registers.get_hl()) as u16;
+        let (result, did_borrow) = value.overflowing_sub(self.registers.a as u16);
+        self.registers.f.carry = did_borrow;
+        self.registers.f.half_carry = (self.registers.a as u16 & 0xFF) < (value & 0xFF);
+        self.registers.f.subtract = true;
+        self.registers.f.zero = result == 0;
+        result as u8
+    }
+
     fn subtract_carry(&mut self, value: u8) -> u8 {
         let (subtract_value, _did_overflow) =
             value.overflowing_add(u8::from(self.registers.f.carry));
@@ -681,7 +691,10 @@ impl CPU {
                 self.registers.l = self.subtract(self.registers.l);
                 self.pc.wrapping_add(1)
             }
-            // TODO: SUB A, HL (0x96)
+            0x96 => {
+                self.registers.a = self.subtract_a_hl();
+                self.pc.wrapping_add(1)
+            }
             0x97 => {
                 self.registers.a = self.subtract(self.registers.a);
                 self.pc.wrapping_add(1)

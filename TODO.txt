@@ -28,7 +28,6 @@ Load instructions:
 - INC [HL]
 - SBC A,[HL]
 - SBC A,n8
-- SUB A,[HL]
 - SUB A,n8
 
 Bitwise logic instructions
@@ -128,3 +127,4 @@ Finished Instructions:
 - RRA
 - SLA r8
 - ADD A,[HL]
+- SUB A,[HL]
