@@ -21,7 +21,6 @@ Load instructions:
 8-bit arithmetic instructions:
 - ADC A,[HL]
 - ADC A,n8
-- ADD A,[HL]
 - ADD A,n8
 - CP A,[HL]
 - CP A,n8
@@ -128,3 +127,4 @@ Finished Instructions:
 - RLA
 - RRA
 - SLA r8
+- ADD A,[HL]

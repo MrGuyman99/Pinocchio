@@ -183,4 +183,16 @@ mod test {
         cpu.execute(false, 0x86);
         assert_eq!(0x6, cpu.registers.a);
     }
+    #[test]
+    fn test_ADC_A_HL() {
+        let mut cpu = CPU::test();
+        cpu.bus = MemoryBus {
+            memory: [0x0; 0xFFFF],
+        };
+        cpu.bus.memory[0x5] = 0x6;
+        cpu.registers.set_hl(0x5);
+        cpu.registers.f.carry = true;
+        cpu.execute(false, 0x8E);
+        assert_eq!(0x7, cpu.registers.a);
+    }
 }

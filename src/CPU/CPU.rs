@@ -104,6 +104,19 @@ impl CPU {
         new_value
     }
 
+    fn add_carry_hl(&mut self) -> u8 {
+        let value = self.bus.read_byte(self.registers.get_hl()) as u16;
+        let a_16 = self.registers.a as u16;
+        let (add_value, _did_overflow) =
+            value.overflowing_add(u8::from(self.registers.f.carry) as u16);
+        let (new_value, did_overflow) = a_16.overflowing_add(add_value);
+        self.registers.f.zero = new_value == 0;
+        self.registers.f.subtract = false;
+        self.registers.f.carry = did_overflow;
+        self.registers.f.half_carry = (a_16 & 0xFF) + (value & 0xFF) > 0xFF;
+        new_value as u8
+    }
+
     fn add_hl(&mut self, value: u16) -> u16 {
         let (new_value, did_overflow) = self.registers.get_hl().overflowing_add(value);
         self.registers.f.subtract = false;
@@ -114,10 +127,13 @@ impl CPU {
 
     // HL stores an address to a byte and we read it from the memory bus and then add it to register a
     fn add_a_hl(&mut self) -> u8 {
-        let value = self.bus.read_byte(self.registers.get_hl());
-        let a_value = self.registers.a as u16;
-        let memorybus_value = value as u16;
-        let result = a_value + memorybus_value;
+        let a_16 = self.registers.a as u16;
+        let value = (self.bus.read_byte(self.registers.get_hl())) as u16;
+        let (result, did_overflow) = value.overflowing_add(a_16);
+        self.registers.f.carry = did_overflow;
+        self.registers.f.half_carry = (value & 0xFF) + (a_16 & 0xFF) > 0xFF;
+        self.registers.f.zero = result == 0;
+        self.registers.f.subtract = false;
         result as u8
     }
 
@@ -632,7 +648,10 @@ impl CPU {
                 self.registers.a = self.add_carry(self.registers.l);
                 self.pc.wrapping_add(1)
             }
-            // TODO: ADC A, HL (0x86)
+            0x8E => {
+                self.registers.a = self.add_carry_hl();
+                self.pc.wrapping_add(1)
+            }
             0x8F => {
                 self.registers.a = self.add_carry(self.registers.a);
                 self.pc.wrapping_add(1)
