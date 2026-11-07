@@ -108,8 +108,17 @@ impl CPU {
         let (new_value, did_overflow) = self.registers.get_hl().overflowing_add(value);
         self.registers.f.subtract = false;
         self.registers.f.carry = did_overflow;
-        self.registers.f.half_carry = (value & 0xFFF) + (value & 0xFFF) > 0xFFF;
+        self.registers.f.half_carry = (value & 0xFF) + (self.registers.get_hl() & 0xFF) > 0xFF;
         new_value
+    }
+
+    // HL stores an address to a byte and we read it from the memory bus and then add it to register a
+    fn add_a_hl(&mut self) -> u8 {
+        let value = self.bus.read_byte(self.registers.get_hl());
+        let a_value = self.registers.a as u16;
+        let memorybus_value = value as u16;
+        let result = a_value + memorybus_value;
+        result as u8
     }
 
     fn subtract(&mut self, value: u8) -> u8 {
@@ -590,7 +599,10 @@ impl CPU {
                 self.registers.a = self.add(self.registers.l);
                 self.pc.wrapping_add(1)
             }
-            // TODO: ADD A, HL (0x86)
+            0x86 => {
+                self.registers.a = self.add_a_hl();
+                self.pc.wrapping_add(1)
+            }
             0x87 => {
                 self.registers.a = self.add(self.registers.a);
                 self.pc.wrapping_add(1)

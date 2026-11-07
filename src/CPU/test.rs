@@ -135,9 +135,11 @@ mod test {
     #[test]
     fn test_ADDHL() {
         let mut cpu = CPU::test();
-        cpu.registers.set_bc(0x10);
+        cpu.registers.set_bc(0xFF);
+        cpu.registers.set_hl(0x1);
         cpu.execute(false, 0x09);
-        assert_eq!(0x10, cpu.registers.get_hl());
+        assert_eq!(0x100, cpu.registers.get_hl());
+        assert_eq!(true, cpu.registers.f.half_carry);
     }
 
     #[test]
@@ -168,5 +170,17 @@ mod test {
         };
         cpu.pc = cpu.execute(false, 0x18);
         assert_eq!(0x4, cpu.pc);
+    }
+
+    #[test]
+    fn test_ADD_A_HL() {
+        let mut cpu = CPU::test();
+        cpu.bus = MemoryBus {
+            memory: [0x0; 0xFFFF],
+        };
+        cpu.bus.memory[0x5] = 0x6;
+        cpu.registers.set_hl(0x5);
+        cpu.execute(false, 0x86);
+        assert_eq!(0x6, cpu.registers.a);
     }
 }
